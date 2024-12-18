@@ -13,6 +13,7 @@ type Config struct {
 	DefaultBotName           string             `json:"defaultBotName"`
 	TranscriptGenerator      string             `json:"transcriptBackend"`
 	EnableLLMTrace           bool               `json:"enableLLMTrace"`
+	EnableTranslations       bool               `json:"enableTranslations"`
 	AllowedUpstreamHostnames string             `json:"allowedUpstreamHostnames"`
 }
 

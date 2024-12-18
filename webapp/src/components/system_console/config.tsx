@@ -187,6 +187,12 @@ const Config = (props: Props) => {
                         onChange={(to) => props.onChange(props.id, {...value, enableLLMTrace: to})}
                         helpText={intl.formatMessage({defaultMessage: 'Enable tracing of LLM requests. Outputs full conversation data to the logs.'})}
                     />
+                    <BooleanItem
+                        label={intl.formatMessage({defaultMessage: 'Enable Translations'})}
+                        value={value.enableTranslations}
+                        onChange={(to) => props.onChange(props.id, {...value, enableTranslations: to})}
+                        helpText={intl.formatMessage({defaultMessage: 'Enable automatic message translations using AI.'})}
+                    />
                 </ItemList>
             </Panel>
         </ConfigContainer>

@@ -295,6 +295,11 @@ func (p *Plugin) handleMentions(bot *Bot, post *model.Post, postingUser *model.U
 }
 
 func (p *Plugin) handleTranslations(post *model.Post) error {
+	// Skip if translations are disabled
+	if !p.getConfiguration().EnableTranslations {
+		return nil
+	}
+
 	// Skip empty messages
 	if post.Message == "" {
 		return nil
