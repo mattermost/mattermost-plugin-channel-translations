@@ -122,8 +122,9 @@ export default class Plugin {
                 async (channelId) => {
                     try {
                         const {enabled} = await fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`).then(r => r.json());
-                        const message = enabled ? 'Disable Translations' : 'Enable Translations';
-                        return <FormattedMessage defaultMessage={message}/>;
+                        return enabled ? 
+                            <FormattedMessage defaultMessage='Disable Translations'/> :
+                            <FormattedMessage defaultMessage='Enable Translations'/>;
                     } catch (e) {
                         console.error('Failed to get translation status:', e);
                         return <FormattedMessage defaultMessage='Toggle Translations'/>;
