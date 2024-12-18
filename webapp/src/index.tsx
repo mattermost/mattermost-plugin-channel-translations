@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {Store, Action} from 'redux';
 import styled from 'styled-components';
 import {FormattedMessage} from 'react-intl';
@@ -114,22 +114,25 @@ export default class Plugin {
             } as any);
         });
 
+        const TranslationButton = (channelId: any) => {
+          const [isTranslated, setIsTranslated] = useState(false)
+          useEffect(() => {
+              fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`).then(r => r.json()).then(({enabled})=> {
+                  setIsTranslated(enabled)
+              });
+          }, [])
+          if (isTranslated) {
+            return <FormattedMessage defaultMessage='Disable Translations'/>;
+          }
+          return <FormattedMessage defaultMessage='Enable Translations'/>;
+        }
+
         registry.registerPostTypeComponent('custom_llmbot', LLMBotPostWithWebsockets);
         registry.registerPostTypeComponent('custom_llm_postback', PostbackPost);
         if (registry.registerPostActionComponent) {
             registry.registerPostActionComponent(PostMenu);
             registry.registerChannelHeaderMenuAction(
-                async (channelId) => {
-                    try {
-                        const {enabled} = await fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`).then(r => r.json());
-                        return enabled ? 
-                            <FormattedMessage defaultMessage='Disable Translations'/> :
-                            <FormattedMessage defaultMessage='Enable Translations'/>;
-                    } catch (e) {
-                        console.error('Failed to get translation status:', e);
-                        return <FormattedMessage defaultMessage='Toggle Translations'/>;
-                    }
-                },
+                <TranslationButton/>,
                 async (channelId) => {
                     try {
                         const {enabled} = await fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`).then(r => r.json());
