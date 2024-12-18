@@ -55,7 +55,7 @@ func (p *Plugin) handleToggleTranslations(c *gin.Context) {
 		return
 	}
 
-	if err := p.setChannelTranslationEnabled(channelID, data.enabled); err != nil {
+	if err := p.setChannelTranslationEnabled(channelID, data.Enabled); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
