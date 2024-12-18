@@ -39,6 +39,13 @@ func (p *Plugin) channelAuthorizationRequired(c *gin.Context) {
 
 func (p *Plugin) handleToggleTranslations(c *gin.Context) {
 	channelID := c.Param("channelid")
+	userID := c.GetHeader("Mattermost-User-Id")
+
+	// Check if user has admin permissions for the channel
+	if !p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionManageChannelProperties) {
+		c.AbortWithError(http.StatusForbidden, errors.New("user doesn't have permission to manage channel"))
+		return
+	}
 
 	var data struct {
 		Enabled bool `json:"enabled"`
@@ -61,6 +68,13 @@ func (p *Plugin) handleToggleTranslations(c *gin.Context) {
 
 func (p *Plugin) handleGetTranslationStatus(c *gin.Context) {
 	channelID := c.Param("channelid")
+	userID := c.GetHeader("Mattermost-User-Id")
+
+	// Check if user has read permissions for the channel
+	if !p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionReadChannel) {
+		c.AbortWithError(http.StatusForbidden, errors.New("user doesn't have permission to read channel"))
+		return
+	}
 	
 	enabled, err := p.isChannelTranslationEnabled(channelID)
 	if err != nil {
