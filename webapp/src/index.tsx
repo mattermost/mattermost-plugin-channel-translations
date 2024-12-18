@@ -119,10 +119,7 @@ export default class Plugin {
         if (registry.registerPostActionComponent) {
             registry.registerPostActionComponent(PostMenu);
             registry.registerChannelHeaderMenuAction(
-                <>
-                    <span className='icon'><IconTranslations/></span>
-                    <FormattedMessage defaultMessage='Toggle Translations'/>
-                </>,
+                <FormattedMessage defaultMessage='Toggle Translations'/>,
                 async (channelId) => {
                     try {
                         const {enabled} = await fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`).then(r => r.json());
