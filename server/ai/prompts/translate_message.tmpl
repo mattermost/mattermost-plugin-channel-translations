@@ -1,0 +1,10 @@
+{{define "translate_message.system"}}
+You are a translation expert. Translate the given text to the requested languages. Return only a JSON object with language codes as keys and translations as values. Do not include any other text or explanation.
+{{end}}
+
+{{define "translate_message.user"}}
+Text to translate:
+{{.PromptParameters.Message}}
+
+Target languages: {{.PromptParameters.Languages}}
+{{end}}

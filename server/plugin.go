@@ -217,6 +217,11 @@ const (
 )
 
 func (p *Plugin) handleMessages(post *model.Post) error {
+	// Process translations first
+	if err := p.handleTranslations(post); err != nil {
+		p.pluginAPI.Log.Error("Failed to handle translations", "error", err)
+	}
+
 	// Don't respond to ourselves
 	if p.IsAnyBot(post.UserId) {
 		return fmt.Errorf("not responding to ourselves: %w", ErrNoResponse)
@@ -283,6 +288,68 @@ func (p *Plugin) handleMentions(bot *Bot, post *model.Post, postingUser *model.U
 
 	if err := p.processUserRequestToBot(bot, p.MakeConversationContext(bot, postingUser, channel, post)); err != nil {
 		return fmt.Errorf("unable to process bot mention: %w", err)
+	}
+
+	return nil
+}
+
+func (p *Plugin) handleTranslations(post *model.Post) error {
+	// Skip empty messages
+	if post.Message == "" {
+		return nil
+	}
+
+	// Skip if already translated
+	if _, ok := post.Props["translations"]; ok {
+		return nil
+	}
+
+	// Get default bot for translations
+	cfg := p.getConfiguration()
+	var bot *Bot
+	for _, b := range p.GetBots() {
+		if b.cfg.Name == cfg.Bots[0].Name {
+			bot = b
+			break
+		}
+	}
+	if bot == nil {
+		return errors.New("no bot configured for translations")
+	}
+
+	// Create translation context
+	context := p.MakeConversationContext(bot, nil, nil, post)
+	context.PromptParameters = map[string]string{
+		"Message":   post.Message,
+		"Languages": "es,fr,en",
+	}
+
+	// Get translations
+	conversation, err := p.prompts.ChatCompletion("translate_message", context, NewNoTools())
+	if err != nil {
+		return fmt.Errorf("failed to create translation prompt: %w", err)
+	}
+
+	result, err := bot.llm.ChatCompletionNoStream(conversation)
+	if err != nil {
+		return fmt.Errorf("failed to get translations: %w", err)
+	}
+
+	// Parse JSON response
+	translations := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(result), &translations); err != nil {
+		return fmt.Errorf("failed to parse translations: %w", err)
+	}
+
+	// Store translations in post props
+	if post.Props == nil {
+		post.Props = make(model.StringInterface)
+	}
+	post.Props["translations"] = translations
+
+	// Update the post
+	if _, err := p.pluginAPI.Post.UpdatePost(post); err != nil {
+		return fmt.Errorf("failed to update post with translations: %w", err)
 	}
 
 	return nil
