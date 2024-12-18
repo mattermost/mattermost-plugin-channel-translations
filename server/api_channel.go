@@ -41,8 +41,22 @@ func (p *Plugin) handleToggleTranslations(c *gin.Context) {
 	channelID := c.Param("channelid")
 	userID := c.GetHeader("Mattermost-User-Id")
 
-	// Check if user has admin permissions for the channel
-	if !p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionManageChannelProperties) {
+	// Get channel to check its type
+	channel, err := p.pluginAPI.Channel.Get(channelID)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	// Check if user has admin permissions based on channel type
+	hasPermission := false
+	if channel.Type == model.ChannelTypePrivate {
+		hasPermission = p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionManagePrivateChannelProperties)
+	} else {
+		hasPermission = p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionManagePublicChannelProperties)
+	}
+
+	if !hasPermission {
 		c.AbortWithError(http.StatusForbidden, errors.New("user doesn't have permission to manage channel"))
 		return
 	}
