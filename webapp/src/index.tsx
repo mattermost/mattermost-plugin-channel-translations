@@ -14,6 +14,7 @@ import {LLMBotPost} from './components/llmbot_post';
 import PostMenu from './components/post_menu';
 import IconThreadSummarization from './components/assets/icon_thread_summarization';
 import IconReactForMe from './components/assets/icon_react_for_me';
+import IconTranslations from './components/assets/icon_translations';
 import RHS from './components/rhs/rhs';
 import Config from './components/system_console/config';
 import {doReaction, doThreadAnalysis, getAIDirectChannel, trackEvent} from './client';
