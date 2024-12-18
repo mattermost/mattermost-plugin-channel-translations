@@ -15,6 +15,7 @@ type Config struct {
 	TranslationBotName       string             `json:"translationBotName"`
 	EnableLLMTrace           bool               `json:"enableLLMTrace"`
 	EnableTranslations       bool               `json:"enableTranslations"`
+	TranslationLanguages     string             `json:"translationLanguages"`
 	AllowedUpstreamHostnames string             `json:"allowedUpstreamHostnames"`
 }
 

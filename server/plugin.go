@@ -366,9 +366,15 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 
 	// Create translation context
 	context := p.MakeConversationContext(bot, nil, nil, post)
+	// Get configured languages or use default
+	languages := p.getConfiguration().TranslationLanguages
+	if languages == "" {
+		languages = "en"
+	}
+	
 	context.PromptParameters = map[string]string{
 		"Message":   post.Message,
-		"Languages": "es,fr,en",
+		"Languages": languages,
 	}
 
 	// Get translations

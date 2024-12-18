@@ -193,6 +193,12 @@ const Config = (props: Props) => {
                         onChange={(to) => props.onChange(props.id, {...value, enableTranslations: to})}
                         helpText={intl.formatMessage({defaultMessage: 'Enable automatic message translations using AI.'})}
                     />
+                    <TextItem
+                        label={intl.formatMessage({defaultMessage: 'Translation Languages'})}
+                        value={value.translationLanguages}
+                        onChange={(e) => props.onChange(props.id, {...value, translationLanguages: e.target.value})}
+                        helpText={intl.formatMessage({defaultMessage: 'Comma-separated list of language codes to translate messages to (e.g. "en,es,fr"). Default is "en".'})}
+                    />
                     <SelectionItem
                         label={intl.formatMessage({defaultMessage: 'Translation Bot'})}
                         value={value.translationBotName}
