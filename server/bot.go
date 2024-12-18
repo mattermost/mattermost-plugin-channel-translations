@@ -14,12 +14,14 @@ import (
 type Bot struct {
 	cfg   ai.BotConfig
 	mmBot *model.Bot
+	llm   ai.LanguageModel
 }
 
-func NewBot(cfg ai.BotConfig, bot *model.Bot) *Bot {
+func NewBot(cfg ai.BotConfig, bot *model.Bot, llm ai.LanguageModel) *Bot {
 	return &Bot{
 		cfg:   cfg,
 		mmBot: bot,
+		llm:   llm,
 	}
 }
 
@@ -207,7 +209,7 @@ func (p *Plugin) UpdateBotsCache() error {
 	for _, botCfg := range botsConfig {
 		for _, bot := range bots {
 			if bot.Username == botCfg.Name {
-				createdBot := NewBot(botCfg, bot)
+				createdBot := NewBot(botCfg, bot, p.getLLM(botCfg))
 				p.bots = append(p.bots, createdBot)
 			}
 		}
@@ -281,6 +283,13 @@ func (p *Plugin) GetBotForDMChannel(channel *model.Channel) *Bot {
 }
 
 // IsAnyBot returns true if the given user is an AI bot.
+// GetBots returns all configured bots
+func (p *Plugin) GetBots() []*Bot {
+	p.botsLock.RLock()
+	defer p.botsLock.RUnlock()
+	return p.bots
+}
+
 func (p *Plugin) IsAnyBot(userID string) bool {
 	p.botsLock.RLock()
 	defer p.botsLock.RUnlock()

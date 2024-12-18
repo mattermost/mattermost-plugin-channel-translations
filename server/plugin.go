@@ -326,7 +326,7 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 	}
 
 	// Get translations
-	conversation, err := p.prompts.ChatCompletion("translate_message", context, NewNoTools())
+	conversation, err := p.prompts.ChatCompletion("translate_message", context, ai.NewNoTools())
 	if err != nil {
 		return fmt.Errorf("failed to create translation prompt: %w", err)
 	}
