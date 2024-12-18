@@ -46,6 +46,8 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	channelRouter := botRequiredRouter.Group("/channel/:channelid")
 	channelRouter.Use(p.channelAuthorizationRequired)
 	channelRouter.POST("/since", p.handleSince)
+	channelRouter.POST("/translations", p.handleToggleTranslations)
+	channelRouter.GET("/translations", p.handleGetTranslationStatus)
 
 	adminRouter := router.Group("/admin")
 	adminRouter.Use(p.mattermostAdminAuthorizationRequired)

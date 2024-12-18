@@ -67,6 +67,9 @@ type Plugin struct {
 	streamingContexts      map[string]PostStreamContext
 	streamingContextsMutex sync.Mutex
 
+	// KV store keys
+	translationEnabledKey string
+
 	licenseChecker *enterprise.LicenseChecker
 	metricsService metrics.Metrics
 	metricsHandler http.Handler
@@ -92,7 +95,30 @@ func resolveffmpegPath() string {
 	return "ffmpeg"
 }
 
+func (p *Plugin) getTranslationEnabledKey(channelID string) string {
+	return fmt.Sprintf("%s_%s", p.translationEnabledKey, channelID)
+}
+
+func (p *Plugin) setChannelTranslationEnabled(channelID string, enabled bool) error {
+	key := p.getTranslationEnabledKey(channelID)
+	if err := p.pluginAPI.KV.Set(key, enabled); err != nil {
+		return fmt.Errorf("failed to set channel translation status: %w", err)
+	}
+	return nil
+}
+
+func (p *Plugin) isChannelTranslationEnabled(channelID string) (bool, error) {
+	key := p.getTranslationEnabledKey(channelID)
+	var enabled bool
+	err := p.pluginAPI.KV.Get(key, &enabled)
+	if err != nil {
+		return false, fmt.Errorf("failed to get channel translation status: %w", err)
+	}
+	return enabled, nil
+}
+
 func (p *Plugin) OnActivate() error {
+	p.translationEnabledKey = "translation_enabled"
 	p.pluginAPI = pluginapi.NewClient(p.API, p.Driver)
 
 	p.licenseChecker = enterprise.NewLicenseChecker(p.pluginAPI)
@@ -295,7 +321,7 @@ func (p *Plugin) handleMentions(bot *Bot, post *model.Post, postingUser *model.U
 }
 
 func (p *Plugin) handleTranslations(post *model.Post) error {
-	// Skip if translations are disabled
+	// Skip if global translations are disabled
 	if !p.getConfiguration().EnableTranslations {
 		return nil
 	}
@@ -307,6 +333,15 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 
 	// Skip if already translated
 	if _, ok := post.Props["translations"]; ok {
+		return nil
+	}
+
+	// Check if translations are enabled for this channel
+	enabled, err := p.isChannelTranslationEnabled(post.ChannelId)
+	if err != nil {
+		return fmt.Errorf("failed to check channel translation status: %w", err)
+	}
+	if !enabled {
 		return nil
 	}
 

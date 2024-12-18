@@ -37,6 +37,38 @@ func (p *Plugin) channelAuthorizationRequired(c *gin.Context) {
 	}
 }
 
+func (p *Plugin) handleToggleTranslations(c *gin.Context) {
+	channelID := c.Param("channelid")
+	var data struct {
+		Enabled bool `json:"enabled"`
+	}
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if err := p.setChannelTranslationEnabled(channelID, data.enabled); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (p *Plugin) handleGetTranslationStatus(c *gin.Context) {
+	channelID := c.Param("channelid")
+	
+	enabled, err := p.isChannelTranslationEnabled(channelID)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]bool{
+		"enabled": enabled,
+	})
+}
+
 func (p *Plugin) handleSince(c *gin.Context) {
 	userID := c.GetHeader("Mattermost-User-Id")
 	channel := c.MustGet(ContextChannelKey).(*model.Channel)
