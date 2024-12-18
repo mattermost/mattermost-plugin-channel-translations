@@ -43,11 +43,14 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	postRouter.POST("/regenerate", p.handleRegenerate)
 	postRouter.POST("/postback_summary", p.handlePostbackSummary)
 
+	// Translations endpoints don't require bot authorization
+	translationsRouter := router.Group("/channel/:channelid")
+	translationsRouter.POST("/translations", p.handleToggleTranslations)
+	translationsRouter.GET("/translations", p.handleGetTranslationStatus)
+
 	channelRouter := botRequiredRouter.Group("/channel/:channelid")
 	channelRouter.Use(p.channelAuthorizationRequired)
 	channelRouter.POST("/since", p.handleSince)
-	channelRouter.POST("/translations", p.handleToggleTranslations)
-	channelRouter.GET("/translations", p.handleGetTranslationStatus)
 
 	adminRouter := router.Group("/admin")
 	adminRouter.Use(p.mattermostAdminAuthorizationRequired)
