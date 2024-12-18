@@ -117,7 +117,7 @@ export default class Plugin {
         const TranslationButton = (channelId: any) => {
           const [isTranslated, setIsTranslated] = useState(false)
           useEffect(() => {
-              fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`).then(r => r.json()).then(({enabled})=> {
+              getChannelTranslationStatus(channelId).then(({enabled}) => {
                   setIsTranslated(enabled)
               });
           }, [])
@@ -135,14 +135,8 @@ export default class Plugin {
                 <TranslationButton/>,
                 async (channelId) => {
                     try {
-                        const {enabled} = await fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`).then(r => r.json());
-                        await fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({enabled: !enabled}),
-                        });
+                        const {enabled} = await getChannelTranslationStatus(channelId);
+                        await toggleChannelTranslations(channelId, !enabled);
                         // Force menu to re-render with updated text
                         window.postMessage({type: 'UPDATE_CHANNEL_HEADER_MENU'}, window.origin);
                     } catch (e) {

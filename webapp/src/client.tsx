@@ -210,6 +210,41 @@ export async function getAIBots() {
     });
 }
 
+export async function getChannelTranslationStatus(channelId: string) {
+    const url = `${channelRoute(channelId)}/translations`;
+    const response = await fetch(url, Client4.getOptions({
+        method: 'GET',
+    }));
+
+    if (response.ok) {
+        return response.json();
+    }
+
+    throw new ClientError(Client4.url, {
+        message: '',
+        status_code: response.status,
+        url,
+    });
+}
+
+export async function toggleChannelTranslations(channelId: string, enabled: boolean) {
+    const url = `${channelRoute(channelId)}/translations`;
+    const response = await fetch(url, Client4.getOptions({
+        method: 'POST',
+        body: JSON.stringify({enabled}),
+    }));
+
+    if (response.ok) {
+        return;
+    }
+
+    throw new ClientError(Client4.url, {
+        message: '',
+        status_code: response.status,
+        url,
+    });
+}
+
 export async function trackEvent(event: string, source: string, props?: Record<string, string>) {
     const url = `${baseRoute()}/telemetry/track`;
     const userAgent = window.navigator.userAgent;
