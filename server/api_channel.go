@@ -41,9 +41,9 @@ func (p *Plugin) handleToggleTranslations(c *gin.Context) {
 	channelID := c.Param("channelid")
 	userID := c.GetHeader("Mattermost-User-Id")
 
-	// Check if user has channel admin permissions
-	if !p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionManageChannelRoles) {
-		c.AbortWithError(http.StatusForbidden, errors.New("user must be a channel admin to toggle translations"))
+	// Check if user has permission to post in the channel
+	if !p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionCreatePost) {
+		c.AbortWithError(http.StatusForbidden, errors.New("user must have permission to post in the channel to toggle translations"))
 		return
 	}
 
