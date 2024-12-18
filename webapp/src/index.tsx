@@ -118,12 +118,15 @@ export default class Plugin {
         registry.registerPostTypeComponent('custom_llm_postback', PostbackPost);
         if (registry.registerPostActionComponent) {
             registry.registerPostActionComponent(PostMenu);
-            registry.registerChannelHeaderButtonAction(
-                <IconTranslations/>,
-                async (channel) => {
+            registry.registerChannelHeaderMenuAction(
+                <>
+                    <span className='icon'><IconTranslations/></span>
+                    <FormattedMessage defaultMessage='Toggle Translations'/>
+                </>,
+                async (channelId) => {
                     try {
-                        const {enabled} = await fetch(`/plugins/mattermost-ai/channel/${channel.id}/translations`).then(r => r.json());
-                        await fetch(`/plugins/mattermost-ai/channel/${channel.id}/translations`, {
+                        const {enabled} = await fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`).then(r => r.json());
+                        await fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -133,9 +136,7 @@ export default class Plugin {
                     } catch (e) {
                         console.error('Failed to toggle translations:', e);
                     }
-                },
-                'Toggle Translations',
-                'Toggle automatic message translations'
+                }
             );
         } else {
             registry.registerPostDropdownMenuAction(<><span className='icon'><IconThreadSummarization/></span><FormattedMessage defaultMessage='Summarize Thread'/></>, (postId: string) => {
