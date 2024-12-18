@@ -17,7 +17,7 @@ import IconReactForMe from './components/assets/icon_react_for_me';
 import IconTranslations from './components/assets/icon_translations';
 import RHS from './components/rhs/rhs';
 import Config from './components/system_console/config';
-import {doReaction, doThreadAnalysis, getAIDirectChannel, trackEvent} from './client';
+import {doReaction, doThreadAnalysis, getAIDirectChannel, trackEvent, getChannelTranslationStatus, toggleChannelTranslations} from './client';
 import {setOpenRHSAction} from './redux_actions';
 import {BotUsername, TelemetryEvents, TelemetrySources} from './constants';
 import PostEventListener from './websocket';
