@@ -119,7 +119,16 @@ export default class Plugin {
         if (registry.registerPostActionComponent) {
             registry.registerPostActionComponent(PostMenu);
             registry.registerChannelHeaderMenuAction(
-                <FormattedMessage defaultMessage='Toggle Translations'/>,
+                async (channelId) => {
+                    try {
+                        const {enabled} = await fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`).then(r => r.json());
+                        const message = enabled ? 'Disable Translations' : 'Enable Translations';
+                        return <FormattedMessage defaultMessage={message}/>;
+                    } catch (e) {
+                        console.error('Failed to get translation status:', e);
+                        return <FormattedMessage defaultMessage='Toggle Translations'/>;
+                    }
+                },
                 async (channelId) => {
                     try {
                         const {enabled} = await fetch(`/plugins/mattermost-ai/channel/${channelId}/translations`).then(r => r.json());
@@ -130,6 +139,8 @@ export default class Plugin {
                             },
                             body: JSON.stringify({enabled: !enabled}),
                         });
+                        // Force menu to re-render with updated text
+                        window.postMessage({type: 'UPDATE_CHANNEL_HEADER_MENU'}, window.origin);
                     } catch (e) {
                         console.error('Failed to toggle translations:', e);
                     }
