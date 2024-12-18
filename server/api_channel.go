@@ -53,7 +53,10 @@ func (p *Plugin) handleToggleTranslations(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	// Return the new status in the response
+	c.JSON(http.StatusOK, map[string]bool{
+		"enabled": data.Enabled,
+	})
 }
 
 func (p *Plugin) handleGetTranslationStatus(c *gin.Context) {

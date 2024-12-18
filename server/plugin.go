@@ -110,8 +110,11 @@ func (p *Plugin) setChannelTranslationEnabled(channelID string, enabled bool) er
 func (p *Plugin) isChannelTranslationEnabled(channelID string) (bool, error) {
 	key := p.getTranslationEnabledKey(channelID)
 	var enabled bool
-	err := p.pluginAPI.KV.Get(key, &enabled)
-	if err != nil {
+	if err := p.pluginAPI.KV.Get(key, &enabled); err != nil {
+		// If key doesn't exist, return false without error
+		if err.Error() == "not found" {
+			return false, nil
+		}
 		return false, fmt.Errorf("failed to get channel translation status: %w", err)
 	}
 	return enabled, nil
