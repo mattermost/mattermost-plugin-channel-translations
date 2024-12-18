@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"encoding/json"
 	"errors"
 
 	sq "github.com/Masterminds/squirrel"
@@ -348,7 +349,7 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 	post.Props["translations"] = translations
 
 	// Update the post
-	if _, err := p.pluginAPI.Post.UpdatePost(post); err != nil {
+	if err := p.pluginAPI.Post.UpdatePost(post); err != nil {
 		return fmt.Errorf("failed to update post with translations: %w", err)
 	}
 
