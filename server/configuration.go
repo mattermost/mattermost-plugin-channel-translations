@@ -12,6 +12,7 @@ type Config struct {
 	Bots                     []ai.BotConfig     `json:"bots"`
 	DefaultBotName           string             `json:"defaultBotName"`
 	TranscriptGenerator      string             `json:"transcriptBackend"`
+	TranslationBotName       string             `json:"translationBotName"`
 	EnableLLMTrace           bool               `json:"enableLLMTrace"`
 	EnableTranslations       bool               `json:"enableTranslations"`
 	AllowedUpstreamHostnames string             `json:"allowedUpstreamHostnames"`

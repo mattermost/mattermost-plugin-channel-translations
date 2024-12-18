@@ -310,17 +310,20 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 		return nil
 	}
 
-	// Get default bot for translations
+	// Get configured translation bot
 	cfg := p.getConfiguration()
 	var bot *Bot
-	for _, b := range p.GetBots() {
-		if b.cfg.Name == cfg.Bots[0].Name {
-			bot = b
-			break
-		}
+	if cfg.TranslationBotName != "" {
+		bot = p.GetBotByUsername(cfg.TranslationBotName)
 	}
 	if bot == nil {
-		return errors.New("no bot configured for translations")
+		// Fallback to first bot if translation bot not found
+		bots := p.GetBots()
+		if len(bots) > 0 {
+			bot = bots[0]
+		} else {
+			return errors.New("no bot configured for translations")
+		}
 	}
 
 	// Create translation context
