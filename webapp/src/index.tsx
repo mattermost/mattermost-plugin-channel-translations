@@ -7,6 +7,11 @@ import styled from 'styled-components';
 import {FormattedMessage} from 'react-intl';
 
 import {GlobalState} from '@mattermost/types/store';
+import type {
+    PluginConfiguration,
+    PluginConfigurationSection,
+    PluginConfigurationCustomSetting
+} from '@mattermost/types/plugins/user_settings';
 
 //@ts-ignore it exists
 import aiIcon from '../../assets/bot_icon.png';
@@ -19,7 +24,8 @@ import IconThreadSummarization from './components/assets/icon_thread_summarizati
 import IconReactForMe from './components/assets/icon_react_for_me';
 import RHS from './components/rhs/rhs';
 import Config from './components/system_console/config';
-import {doReaction, doThreadAnalysis, getAIDirectChannel, getChannelTranslationStatus, toggleChannelTranslations} from './client';
+import {doReaction, doThreadAnalysis, getAIDirectChannel, getChannelTranslationStatus, toggleChannelTranslations, getTranslationLanguages, setUserTranslationLanguage} from './client';
+import TranslationLanguageSetting from './components/user_settings/translation_language';
 import {setOpenRHSAction} from './redux_actions';
 import PostEventListener from './websocket';
 import {BotsHandler, setupRedux} from './redux';
@@ -167,6 +173,29 @@ export default class Plugin {
             'Copilot',
             );
         }
+
+        // Register user settings
+        const userSettings: PluginConfiguration = {
+            id: manifest.id,
+            uiName: 'Copilot',
+            icon: aiIcon,
+            sections: [
+                {
+                    title: 'Translation Settings',
+                    settings: [
+                        {
+                            type: 'custom',
+                            name: 'translation_language',
+                            title: 'Preferred Translation Language',
+                            helpText: 'Select your preferred language for translations. This setting applies to all channels where translations are enabled.',
+                            component: TranslationLanguageSetting
+                        } as PluginConfigurationCustomSetting
+                    ]
+                } as PluginConfigurationSection
+            ]
+        };
+        
+        registry.registerUserSettings(userSettings);
 
         if (registry.registerNewMessagesSeparatorActionComponent) {
             registry.registerNewMessagesSeparatorActionComponent(UnreadsSummarize);
