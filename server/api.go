@@ -6,6 +6,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"errors"
 
@@ -47,6 +48,10 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	translationsRouter := router.Group("/channel/:channelid")
 	translationsRouter.POST("/translations", p.handleToggleTranslations)
 	translationsRouter.GET("/translations", p.handleGetTranslationStatus)
+
+	// Translation language endpoints
+	router.GET("/translation/languages", p.handleGetTranslationLanguages)
+	router.POST("/translation/user_preference", p.handleSetUserTranslationLanguage)
 
 	channelRouter := botRequiredRouter.Group("/channel/:channelid")
 	channelRouter.Use(p.channelAuthorizationRequired)
@@ -164,4 +169,61 @@ func (p *Plugin) handleGetAIBots(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, bots)
+}
+
+// Translation Language Preferences API
+
+type TranslationLanguagesResponse struct {
+	Languages      []string `json:"languages"`
+	UserPreference string   `json:"userPreference"`
+}
+
+func (p *Plugin) handleGetTranslationLanguages(c *gin.Context) {
+	userID := c.GetHeader("Mattermost-User-Id")
+	
+	// Get configured languages from the plugin config
+	configuredLanguages := []string{}
+	if p.getConfiguration().TranslationLanguages != "" {
+		configuredLanguages = strings.Split(p.getConfiguration().TranslationLanguages, ",")
+		// Trim any whitespace
+		for i, lang := range configuredLanguages {
+			configuredLanguages[i] = strings.TrimSpace(lang)
+		}
+	}
+	
+	// Get user's preference
+	preference, _ := p.API.KVGet(getUserTranslationPreferenceKey(userID))
+	
+	response := TranslationLanguagesResponse{
+		Languages:      configuredLanguages,
+		UserPreference: string(preference),
+	}
+	
+	c.JSON(http.StatusOK, response)
+}
+
+type SetTranslationLanguageRequest struct {
+	Language string `json:"language"`
+}
+
+func (p *Plugin) handleSetUserTranslationLanguage(c *gin.Context) {
+	userID := c.GetHeader("Mattermost-User-Id")
+	
+	var req SetTranslationLanguageRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	
+	// Save user preference
+	if err := p.API.KVSet(getUserTranslationPreferenceKey(userID), []byte(req.Language)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save preference"})
+		return
+	}
+	
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func getUserTranslationPreferenceKey(userID string) string {
+	return fmt.Sprintf("user_translation_preference_%s", userID)
 }
