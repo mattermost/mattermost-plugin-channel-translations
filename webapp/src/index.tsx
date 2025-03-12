@@ -1,3 +1,6 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 import React, {useState, useEffect} from 'react';
 import {Store, Action} from 'redux';
 import styled from 'styled-components';
@@ -14,12 +17,10 @@ import {LLMBotPost} from './components/llmbot_post';
 import PostMenu from './components/post_menu';
 import IconThreadSummarization from './components/assets/icon_thread_summarization';
 import IconReactForMe from './components/assets/icon_react_for_me';
-import IconTranslations from './components/assets/icon_translations';
 import RHS from './components/rhs/rhs';
 import Config from './components/system_console/config';
-import {doReaction, doThreadAnalysis, getAIDirectChannel, trackEvent, getChannelTranslationStatus, toggleChannelTranslations} from './client';
+import {doReaction, doThreadAnalysis, getAIDirectChannel, getChannelTranslationStatus, toggleChannelTranslations} from './client';
 import {setOpenRHSAction} from './redux_actions';
-import {BotUsername, TelemetryEvents, TelemetrySources} from './constants';
 import PostEventListener from './websocket';
 import {BotsHandler, setupRedux} from './redux';
 import UnreadsSummarize from './components/unreads_summarize';
@@ -133,7 +134,7 @@ export default class Plugin {
             registry.registerPostActionComponent(PostMenu);
             registry.registerChannelHeaderMenuAction(
                 <TranslationButton/>,
-                async (channelId) => {
+                async (channelId: string) => {
                     try {
                         const {enabled} = await getChannelTranslationStatus(channelId);
                         await toggleChannelTranslations(channelId, !enabled);
@@ -148,7 +149,7 @@ export default class Plugin {
             registry.registerPostDropdownMenuAction(<><span className='icon'><IconThreadSummarization/></span><FormattedMessage defaultMessage='Summarize Thread'/></>, (postId: string) => {
                 const state = store.getState();
                 const team = state.entities.teams.teams[state.entities.teams.currentTeamId];
-                window.WebappUtils.browserHistory.push('/' + team.name + '/messages/@' + BotUsername);
+                window.WebappUtils.browserHistory.push('/' + team.name + '/messages/@ai');
                 doThreadAnalysis(postId, 'summarize_thread', '');
                 if (rhs) {
                     store.dispatch(rhs.showRHSPlugin);
@@ -160,9 +161,6 @@ export default class Plugin {
         registry.registerAdminConsoleCustomSetting('Config', Config);
         if (rhs) {
             registry.registerChannelHeaderButtonAction(<IconAIContainer src={aiIcon}/>, () => {
-                trackEvent(TelemetryEvents.CopilotAppsBarClicked, TelemetrySources.Widget, {
-                    user_id: store.getState().entities.users.currentUserId,
-                });
                 store.dispatch(rhs.toggleRHSPlugin);
             },
             'Copilot',

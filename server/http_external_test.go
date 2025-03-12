@@ -1,3 +1,6 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 package main
 
 import (
@@ -159,7 +162,7 @@ func TestHostnameAllowed(t *testing.T) {
 func TestCreateRestrictedClient(t *testing.T) {
 	// Start a test HTTP server
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	}))
 	defer ts.Close()
 

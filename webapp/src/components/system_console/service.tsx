@@ -1,3 +1,6 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 export type ServiceData = {
     id: string
     name: string
@@ -11,4 +14,5 @@ export type ServiceData = {
     tokenLimit: number
     streamingTimeoutSeconds: number
     sendUserId: boolean
+    outputTokenLimit: number
 }

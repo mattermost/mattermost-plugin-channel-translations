@@ -1,3 +1,6 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 import {Client4 as Client4Class, ClientError} from '@mattermost/client';
 import {ChannelWithTeamData} from '@mattermost/types/channels';
 import {Team} from '@mattermost/types/lib/teams';
@@ -236,31 +239,6 @@ export async function toggleChannelTranslations(channelId: string, enabled: bool
 
     if (response.ok) {
         return;
-    }
-
-    throw new ClientError(Client4.url, {
-        message: '',
-        status_code: response.status,
-        url,
-    });
-}
-
-export async function trackEvent(event: string, source: string, props?: Record<string, string>) {
-    const url = `${baseRoute()}/telemetry/track`;
-    const userAgent = window.navigator.userAgent;
-    const clientType = (userAgent.indexOf('Mattermost') === -1 || userAgent.indexOf('Electron') === -1) ? 'web' : 'desktop';
-    const response = await fetch(url, Client4.getOptions({
-        method: 'POST',
-        body: JSON.stringify({
-            event,
-            source,
-            clientType,
-            props: props || {},
-        }),
-    }));
-
-    if (response.ok) {
-        return response.json();
     }
 
     throw new ClientError(Client4.url, {

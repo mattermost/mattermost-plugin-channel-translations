@@ -1,3 +1,6 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 package main
 
 import (
@@ -6,7 +9,7 @@ import (
 
 	"errors"
 
-	"github.com/mattermost/mattermost-plugin-ai/server/ai"
+	"github.com/mattermost/mattermost-plugin-ai/server/llm"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 )
@@ -27,19 +30,19 @@ func (p *Plugin) checkUsageRestrictions(requestingUserID string, bot *Bot, chann
 
 func (p *Plugin) checkUsageRestrictionsForChannel(bot *Bot, channel *model.Channel) error {
 	switch bot.cfg.ChannelAccessLevel {
-	case ai.ChannelAccessLevelAll:
+	case llm.ChannelAccessLevelAll:
 		return nil
-	case ai.ChannelAccessLevelAllow:
+	case llm.ChannelAccessLevelAllow:
 		if !slices.Contains(bot.cfg.ChannelIDs, channel.Id) {
 			return fmt.Errorf("channel not allowed: %w", ErrUsageRestriction)
 		}
 		return nil
-	case ai.ChannelAccessLevelBlock:
+	case llm.ChannelAccessLevelBlock:
 		if slices.Contains(bot.cfg.ChannelIDs, channel.Id) {
 			return fmt.Errorf("channel blocked: %w", ErrUsageRestriction)
 		}
 		return nil
-	case ai.ChannelAccessLevelNone:
+	case llm.ChannelAccessLevelNone:
 		return fmt.Errorf("channel usage block for bot: %w", ErrUsageRestriction)
 	}
 
@@ -59,9 +62,9 @@ func (p *Plugin) isMemberOfTeam(teamID string, userID string) (bool, error) {
 
 func (p *Plugin) checkUsageRestrictionsForUser(bot *Bot, requestingUserID string) error {
 	switch bot.cfg.UserAccessLevel {
-	case ai.UserAccessLevelAll:
+	case llm.UserAccessLevelAll:
 		return nil
-	case ai.UserAccessLevelAllow:
+	case llm.UserAccessLevelAllow:
 		// Check direct user allowlist
 		if slices.Contains(bot.cfg.UserIDs, requestingUserID) {
 			return nil
@@ -77,7 +80,7 @@ func (p *Plugin) checkUsageRestrictionsForUser(bot *Bot, requestingUserID string
 			}
 		}
 		return fmt.Errorf("user not allowed: %w", ErrUsageRestriction)
-	case ai.UserAccessLevelBlock:
+	case llm.UserAccessLevelBlock:
 		// Check direct user blocklist
 		if slices.Contains(bot.cfg.UserIDs, requestingUserID) {
 			return fmt.Errorf("user blocked: %w", ErrUsageRestriction)
@@ -93,7 +96,7 @@ func (p *Plugin) checkUsageRestrictionsForUser(bot *Bot, requestingUserID string
 			}
 		}
 		return nil
-	case ai.UserAccessLevelNone:
+	case llm.UserAccessLevelNone:
 		return fmt.Errorf("user usage block for bot: %w", ErrUsageRestriction)
 	}
 

@@ -1,3 +1,6 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 package main
 
 import (
@@ -11,9 +14,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
-	"github.com/mattermost/mattermost-plugin-ai/server/ai"
-	"github.com/mattermost/mattermost-plugin-ai/server/ai/subtitles"
 	"github.com/mattermost/mattermost-plugin-ai/server/enterprise"
+	"github.com/mattermost/mattermost-plugin-ai/server/llm"
+	"github.com/mattermost/mattermost-plugin-ai/server/llm/subtitles"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
@@ -61,13 +64,13 @@ func (p *Plugin) handleReact(c *gin.Context) {
 
 	conversationContext := p.MakeConversationContext(bot, user, channel, post)
 	conversationContext.PromptParameters = map[string]string{"Message": post.Message}
-	prompt, err := p.prompts.ChatCompletion(ai.PromptEmojiSelect, conversationContext, ai.NewNoTools())
+	prompt, err := p.prompts.ChatCompletion(llm.PromptEmojiSelect, conversationContext, llm.NewNoTools())
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	emojiName, err := p.getLLM(bot.cfg).ChatCompletionNoStream(prompt, ai.WithMaxGeneratedTokens(25))
+	emojiName, err := p.getLLM(bot.cfg).ChatCompletionNoStream(prompt, llm.WithMaxGeneratedTokens(25))
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -77,7 +80,7 @@ func (p *Plugin) handleReact(c *gin.Context) {
 	emojiName = strings.Trim(strings.TrimSpace(emojiName), ":")
 
 	if _, found := model.GetSystemEmojiId(emojiName); !found {
-		p.pluginAPI.Post.AddReaction(&model.Reaction{
+		_ = p.pluginAPI.Post.AddReaction(&model.Reaction{
 			EmojiName: "large_red_square",
 			UserId:    bot.mmBot.UserId,
 			PostId:    post.Id,
@@ -119,8 +122,8 @@ func (p *Plugin) handleThreadAnalysis(c *gin.Context) {
 	var data struct {
 		AnalysisType string `json:"analysis_type" binding:"required"`
 	}
-	if err := c.ShouldBindJSON(&data); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+	if bindErr := c.ShouldBindJSON(&data); bindErr != nil {
+		c.AbortWithError(http.StatusBadRequest, bindErr)
 		return
 	}
 
@@ -133,13 +136,6 @@ func (p *Plugin) handleThreadAnalysis(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid analysis type: %s", data.AnalysisType))
 		return
 	}
-
-	p.track(evThreadButton, map[string]any{
-		"channel_id":     channel.Id,
-		"post_id":        post.Id,
-		"user_actual_id": user.Id,
-		"preset_prompt":  data.AnalysisType,
-	})
 
 	createdPost, err := p.startNewAnalysisThread(bot, post.Id, data.AnalysisType, p.MakeConversationContext(bot, user, channel, nil))
 	if err != nil {
@@ -224,12 +220,6 @@ func (p *Plugin) handleSummarizeTranscription(c *gin.Context) {
 		return
 	}
 
-	p.track(evSummarizeTranscription, map[string]any{
-		"channel_id":     channel.Id,
-		"post_id":        post.Id,
-		"user_actual_id": user.Id,
-	})
-
 	createdPost, err := p.newCallTranscriptionSummaryThread(bot, user, post, channel)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("unable to summarize transcription: %w", err))
@@ -309,7 +299,7 @@ func (p *Plugin) regeneratePost(bot *Bot, post *model.Post, user *model.User, ch
 	analysisTypeProp := post.GetProp(AnalysisTypeProp)
 	referenceRecordingFileIDProp := post.GetProp(ReferencedRecordingFileID)
 	referencedTranscriptPostProp := post.GetProp(ReferencedTranscriptPostID)
-	var result *ai.TextStreamResult
+	var result *llm.TextStreamResult
 	switch {
 	case threadIDProp != nil:
 		threadID := threadIDProp.(string)

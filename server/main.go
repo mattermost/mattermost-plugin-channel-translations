@@ -1,12 +1,11 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 package main
 
 import (
 	"github.com/mattermost/mattermost/server/public/plugin"
 )
-
-var buildHash string
-var rudderWriteKey string
-var rudderDataplaneURL string
 
 func main() {
 	plugin.ClientMain(&Plugin{})

@@ -1,3 +1,6 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 import React from 'react';
 import styled from 'styled-components';
 import {FormattedMessage} from 'react-intl';
@@ -86,7 +89,7 @@ export const HelpText = styled.div`
 `;
 
 export const StyledInput = styled.input<{ as?: string }>`
-	apperance: none;
+	appearance: none;
 	display: flex;
 	padding: 7px 12px;
 	align-items: flex-start;

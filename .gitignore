@@ -11,3 +11,10 @@ server/manifest.go
 
 # VSCode
 .vscode/
+
+# Aider
+.aider*
+.env
+
+# notice
+.notice-work

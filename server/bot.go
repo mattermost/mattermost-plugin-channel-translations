@@ -1,10 +1,13 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 package main
 
 import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/mattermost/mattermost-plugin-ai/server/ai"
+	"github.com/mattermost/mattermost-plugin-ai/server/llm"
 	"github.com/mattermost/mattermost-plugin-ai/server/mmapi"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
@@ -12,16 +15,16 @@ import (
 )
 
 type Bot struct {
-	cfg   ai.BotConfig
+	cfg   llm.BotConfig
 	mmBot *model.Bot
-	llm   ai.LanguageModel
+	llm   llm.LanguageModel
 }
 
-func NewBot(cfg ai.BotConfig, bot *model.Bot, llm ai.LanguageModel) *Bot {
+func NewBot(cfg llm.BotConfig, bot *model.Bot, model llm.LanguageModel) *Bot {
 	return &Bot{
 		cfg:   cfg,
 		mmBot: bot,
-		llm:   llm,
+		llm:   model,
 	}
 }
 
@@ -48,7 +51,7 @@ func (p *Plugin) MigrateServicesToBots() error {
 	defer mtx.Unlock()
 
 	migrationDone := false
-	p.pluginAPI.KV.Get("migrate_services_to_bots_done", &migrationDone)
+	_ = p.pluginAPI.KV.Get("migrate_services_to_bots_done", &migrationDone)
 	if migrationDone {
 		return nil
 	}
@@ -58,7 +61,7 @@ func (p *Plugin) MigrateServicesToBots() error {
 	existingConfig := p.getConfiguration().Clone()
 
 	if len(existingConfig.Bots) != 0 {
-		p.pluginAPI.KV.Set("migrate_services_to_bots_done", true)
+		_, _ = p.pluginAPI.KV.Set("migrate_services_to_bots_done", true)
 		return nil
 	}
 
@@ -68,18 +71,18 @@ func (p *Plugin) MigrateServicesToBots() error {
 		return fmt.Errorf("failed to load plugin configuration for migration: %w", err)
 	}
 
-	existingConfig.Bots = make([]ai.BotConfig, 0, len(oldConfig.Config.Services))
+	existingConfig.Bots = make([]llm.BotConfig, 0, len(oldConfig.Config.Services))
 	for _, service := range oldConfig.Config.Services {
-		existingConfig.Bots = append(existingConfig.Bots, ai.BotConfig{
+		existingConfig.Bots = append(existingConfig.Bots, llm.BotConfig{
 			DisplayName: service.Name,
 			ID:          service.Name,
-			Service: ai.ServiceConfig{
-				Type:         service.ServiceName,
-				DefaultModel: service.DefaultModel,
-				OrgID:        service.OrgID,
-				APIURL:       service.URL,
-				APIKey:       service.APIKey,
-				TokenLimit:   service.TokenLimit,
+			Service: llm.ServiceConfig{
+				Type:            service.ServiceName,
+				DefaultModel:    service.DefaultModel,
+				OrgID:           service.OrgID,
+				APIURL:          service.URL,
+				APIKey:          service.APIKey,
+				InputTokenLimit: service.TokenLimit,
 			},
 		})
 	}
@@ -103,7 +106,7 @@ func (p *Plugin) MigrateServicesToBots() error {
 		return fmt.Errorf("failed to save plugin configuration: %w", err)
 	}
 	p.setConfiguration(existingConfig)
-	p.pluginAPI.KV.Set("migrate_services_to_bots_done", true)
+	_, _ = p.pluginAPI.KV.Set("migrate_services_to_bots_done", true)
 
 	return nil
 }
@@ -128,7 +131,7 @@ func (p *Plugin) EnsureBots() error {
 		cfgBots = cfgBots[:1]
 	}
 
-	aiBotConfigsByUsername := make(map[string]ai.BotConfig)
+	aiBotConfigsByUsername := make(map[string]llm.BotConfig)
 	for _, bot := range cfgBots {
 		if !bot.IsValid() {
 			p.pluginAPI.Log.Error("Configured bot is not valid", "bot_name", bot.Name, "bot_display_name", bot.DisplayName)
@@ -218,10 +221,10 @@ func (p *Plugin) UpdateBotsCache() error {
 	return nil
 }
 
-func (p *Plugin) GetBotConfig(botUsername string) (ai.BotConfig, error) {
+func (p *Plugin) GetBotConfig(botUsername string) (llm.BotConfig, error) {
 	bot := p.GetBotByUsername(botUsername)
 	if bot == nil {
-		return ai.BotConfig{}, fmt.Errorf("bot not found")
+		return llm.BotConfig{}, fmt.Errorf("bot not found")
 	}
 
 	return bot.cfg, nil

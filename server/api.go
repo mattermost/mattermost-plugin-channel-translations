@@ -1,3 +1,6 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 package main
 
 import (
@@ -7,7 +10,7 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mattermost/mattermost-plugin-ai/server/ai"
+	"github.com/mattermost/mattermost-plugin-ai/server/llm"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 )
@@ -16,8 +19,6 @@ const (
 	ContextPostKey    = "post"
 	ContextChannelKey = "channel"
 	ContextBotKey     = "bot"
-
-	requestBodyMaxSizeBytes = 1024 * 1024 // 1MB
 )
 
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
@@ -28,7 +29,6 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 
 	router.GET("/ai_threads", p.handleGetAIThreads)
 	router.GET("/ai_bots", p.handleGetAIBots)
-	router.POST("/telemetry/track", p.handleTrackEvent)
 
 	botRequiredRouter := router.Group("")
 	botRequiredRouter.Use(p.aiBotRequired)
@@ -116,15 +116,15 @@ func (p *Plugin) handleGetAIThreads(c *gin.Context) {
 }
 
 type AIBotInfo struct {
-	ID                 string                `json:"id"`
-	DisplayName        string                `json:"displayName"`
-	Username           string                `json:"username"`
-	LastIconUpdate     int64                 `json:"lastIconUpdate"`
-	DMChannelID        string                `json:"dmChannelID"`
-	ChannelAccessLevel ai.ChannelAccessLevel `json:"channelAccessLevel"`
-	ChannelIDs         []string              `json:"channelIDs"`
-	UserAccessLevel    ai.UserAccessLevel    `json:"userAccessLevel"`
-	UserIDs            []string              `json:"userIDs"`
+	ID                 string                 `json:"id"`
+	DisplayName        string                 `json:"displayName"`
+	Username           string                 `json:"username"`
+	LastIconUpdate     int64                  `json:"lastIconUpdate"`
+	DMChannelID        string                 `json:"dmChannelID"`
+	ChannelAccessLevel llm.ChannelAccessLevel `json:"channelAccessLevel"`
+	ChannelIDs         []string               `json:"channelIDs"`
+	UserAccessLevel    llm.UserAccessLevel    `json:"userAccessLevel"`
+	UserIDs            []string               `json:"userIDs"`
 }
 
 func (p *Plugin) handleGetAIBots(c *gin.Context) {

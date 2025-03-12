@@ -1,3 +1,6 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 import React, {useState} from 'react';
 import styled from 'styled-components';
 import {FormattedMessage, useIntl} from 'react-intl';
@@ -24,6 +27,7 @@ export type LLMService = {
     tokenLimit: number
     streamingTimeoutSeconds: number
     sendUserId: boolean
+    outputTokenLimit: number
 }
 
 export enum ChannelAccessLevel {
@@ -67,7 +71,6 @@ const mapServiceTypeToDisplayName = new Map<string, string>([
     ['openaicompatible', 'OpenAI Compatible'],
     ['azure', 'Azure'],
     ['anthropic', 'Anthropic'],
-    ['asksage', 'Ask Sage'],
 ]);
 
 function serviceTypeToDisplayName(serviceType: string): string {
@@ -80,10 +83,11 @@ const Bot = (props: Props) => {
     const missingInfo = props.bot.name === '' ||
 		props.bot.displayName === '' ||
 		props.bot.service.type === '' ||
-		(props.bot.service.type !== 'asksage' && props.bot.service.type !== 'openaicompatible' && props.bot.service.type !== 'azure' && props.bot.service.apiKey === '') ||
+		(props.bot.service.type !== 'openaicompatible' && props.bot.service.type !== 'azure' && props.bot.service.apiKey === '') ||
 		((props.bot.service.type === 'openaicompatible' || props.bot.service.type === 'azure') && props.bot.service.apiURL === '');
 
     const invalidUsername = props.bot.name !== '' && (!(/^[a-z0-9.\-_]+$/).test(props.bot.name) || !(/[a-z]/).test(props.bot.name.charAt(0)));
+    const invalidMaxTokens = props.bot.service.type === 'anthropic' && props.bot.service?.outputTokenLimit === 0;
     return (
         <BotContainer>
             <HeaderContainer onClick={() => setOpen((o) => !o)}>
@@ -110,6 +114,13 @@ const Bot = (props: Props) => {
                         <FormattedMessage defaultMessage='Invalid Username'/>
                     </DangerPill>
                 )}
+                {invalidMaxTokens && (
+                    <DangerPill>
+                        <AlertOutlineIcon/>
+                        <FormattedMessage defaultMessage='Output token limit must be greater than 0'/>
+                    </DangerPill>
+                )}
+
                 <ButtonIcon
                     onClick={props.onDelete}
                 >
@@ -145,7 +156,6 @@ const Bot = (props: Props) => {
                             <SelectionItemOption value='openaicompatible'>{'OpenAI Compatible'}</SelectionItemOption>
                             <SelectionItemOption value='azure'>{'Azure'}</SelectionItemOption>
                             <SelectionItemOption value='anthropic'>{'Anthropic'}</SelectionItemOption>
-                            <SelectionItemOption value='asksage'>{'Ask Sage (Experimental)'}</SelectionItemOption>
                         </SelectionItem>
                         <ServiceItem
                             service={props.bot.service}
@@ -158,7 +168,7 @@ const Bot = (props: Props) => {
                             value={props.bot.customInstructions}
                             onChange={(e) => props.onChange({...props.bot, customInstructions: e.target.value})}
                         />
-                        {(props.bot.service.type === 'openai' || props.bot.service.type === 'openaicompatible' || props.bot.service.type === 'azure') && (
+                        {(props.bot.service.type === 'openai' || props.bot.service.type === 'openaicompatible' || props.bot.service.type === 'azure' || props.bot.service.type === 'anthropic') && (
                             <>
                                 <BooleanItem
                                     label={
@@ -219,8 +229,17 @@ type ServiceItemProps = {
 const ServiceItem = (props: ServiceItemProps) => {
     const type = props.service.type;
     const intl = useIntl();
-    const hasAPIKey = type !== 'asksage';
     const isOpenAIType = type === 'openai' || type === 'openaicompatible' || type === 'azure';
+
+    const getDefaultOutputTokenLimit = () => {
+        switch (type) {
+        case 'anthropic':
+            return '8192';
+        default:
+            return '0';
+        }
+    };
+
     return (
         <>
             {(type === 'openaicompatible' || type === 'azure') && (
@@ -230,14 +249,12 @@ const ServiceItem = (props: ServiceItemProps) => {
                     onChange={(e) => props.onChange({...props.service, apiURL: e.target.value})}
                 />
             )}
-            {hasAPIKey && (
-                <TextItem
-                    label={intl.formatMessage({defaultMessage: 'API Key'})}
-                    type='password'
-                    value={props.service.apiKey}
-                    onChange={(e) => props.onChange({...props.service, apiKey: e.target.value})}
-                />
-            )}
+            <TextItem
+                label={intl.formatMessage({defaultMessage: 'API Key'})}
+                type='password'
+                value={props.service.apiKey}
+                onChange={(e) => props.onChange({...props.service, apiKey: e.target.value})}
+            />
             {isOpenAIType && (
                 <>
                     <TextItem
@@ -253,35 +270,41 @@ const ServiceItem = (props: ServiceItemProps) => {
                     />
                 </>
             )}
-            {type === 'asksage' && (
-                <>
-                    <TextItem
-                        label={intl.formatMessage({defaultMessage: 'Username'})}
-                        value={props.service.username}
-                        onChange={(e) => props.onChange({...props.service, username: e.target.value})}
-                    />
-                    <TextItem
-                        label={intl.formatMessage({defaultMessage: 'Password'})}
-                        value={props.service.password}
-                        onChange={(e) => props.onChange({...props.service, password: e.target.value})}
-                    />
-                </>
-            )}
             <TextItem
                 label={intl.formatMessage({defaultMessage: 'Default model'})}
                 value={props.service.defaultModel}
                 onChange={(e) => props.onChange({...props.service, defaultModel: e.target.value})}
             />
             <TextItem
-                label={intl.formatMessage({defaultMessage: 'Token limit'})}
+                label={intl.formatMessage({defaultMessage: 'Input token limit'})}
+                type='number'
                 value={props.service.tokenLimit.toString()}
-                onChange={(e) => props.onChange({...props.service, tokenLimit: parseInt(e.target.value, 10)})}
+                onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
+                    const tokenLimit = isNaN(value) ? 0 : value;
+                    props.onChange({...props.service, tokenLimit});
+                }}
+            />
+            <TextItem
+                label={intl.formatMessage({defaultMessage: 'Output token limit'})}
+                type='number'
+                value={props.service.outputTokenLimit?.toString() || getDefaultOutputTokenLimit()}
+                onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
+                    const outputTokenLimit = isNaN(value) ? 0 : value;
+                    props.onChange({...props.service, outputTokenLimit});
+                }}
             />
             {isOpenAIType && (
                 <TextItem
                     label={intl.formatMessage({defaultMessage: 'Streaming Timeout Seconds'})}
+                    type='number'
                     value={props.service.streamingTimeoutSeconds?.toString() || '0'}
-                    onChange={(e) => props.onChange({...props.service, streamingTimeoutSeconds: parseInt(e.target.value, 10)})}
+                    onChange={(e) => {
+                        const value = parseInt(e.target.value, 10);
+                        const streamingTimeoutSeconds = isNaN(value) ? 0 : value;
+                        props.onChange({...props.service, streamingTimeoutSeconds});
+                    }}
                 />
             )}
         </>

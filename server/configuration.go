@@ -1,22 +1,25 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 package main
 
 import (
 	"fmt"
 	"reflect"
 
-	"github.com/mattermost/mattermost-plugin-ai/server/ai"
+	"github.com/mattermost/mattermost-plugin-ai/server/llm"
 )
 
 type Config struct {
-	Services                 []ai.ServiceConfig `json:"services"`
-	Bots                     []ai.BotConfig     `json:"bots"`
-	DefaultBotName           string             `json:"defaultBotName"`
-	TranscriptGenerator      string             `json:"transcriptBackend"`
-	TranslationBotName       string             `json:"translationBotName"`
-	EnableLLMTrace           bool               `json:"enableLLMTrace"`
-	EnableTranslations       bool               `json:"enableTranslations"`
-	TranslationLanguages     string             `json:"translationLanguages"`
-	AllowedUpstreamHostnames string             `json:"allowedUpstreamHostnames"`
+	Services                 []llm.ServiceConfig `json:"services"`
+	Bots                     []llm.BotConfig     `json:"bots"`
+	DefaultBotName           string              `json:"defaultBotName"`
+	TranscriptGenerator      string              `json:"transcriptBackend"`
+	EnableLLMTrace           bool                `json:"enableLLMTrace"`
+	AllowedUpstreamHostnames string              `json:"allowedUpstreamHostnames"`
+	TranslationBotName       string              `json:"translationBotName"`
+	EnableTranslations       bool                `json:"enableTranslations"`
+	TranslationLanguages     string              `json:"translationLanguages"`
 }
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server
@@ -84,15 +87,6 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 
 // OnConfigurationChange is invoked when configuration changes may have been made.
 func (p *Plugin) OnConfigurationChange() error {
-	serverConfig := p.API.GetConfig()
-	if serverConfig != nil {
-		if err := p.initTelemetry(serverConfig.LogSettings.EnableDiagnostics); err != nil {
-			p.API.LogError(err.Error())
-		}
-	} else {
-		p.API.LogError("OnConfigurationChange: failed to get server config")
-	}
-
 	var configuration = new(configuration)
 
 	// Load the public configuration fields from the Mattermost server configuration.
