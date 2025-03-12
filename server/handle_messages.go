@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/mattermost/mattermost-plugin-ai/server/llm"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -200,20 +201,19 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 	startTag := "<translations>"
 	endTag := "</translations>"
 	
-	startIndex := -1
-	endIndex := -1
-	
-	if startTagIdx := indexOf(result, startTag); startTagIdx != -1 {
-		startIndex = startTagIdx + len(startTag)
-	}
-	
-	if endTagIdx := indexOf(result, endTag); endTagIdx != -1 {
-		endIndex = endTagIdx
-	}
-	
-	// If we found both tags, extract the content between them
-	if startIndex != -1 && endIndex != -1 && startIndex < endIndex {
-		jsonContent = result[startIndex:endIndex]
+	startIndex := indexOf(result, startTag)
+	if startIndex != -1 {
+		startIndex += len(startTag)
+		endIndex := indexOf(result, endTag)
+		if endIndex != -1 && startIndex < endIndex {
+			jsonContent = result[startIndex:endIndex]
+			jsonContent = strings.TrimSpace(jsonContent)
+			p.pluginAPI.Log.Debug("Extracted translation JSON", "json", jsonContent)
+		} else {
+			p.pluginAPI.Log.Warn("Could not find closing </translations> tag in translation response")
+		}
+	} else {
+		p.pluginAPI.Log.Warn("Could not find <translations> tag in translation response", "response", result)
 	}
 	
 	// Parse JSON response
