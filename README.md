@@ -1,20 +1,23 @@
 <div align="center">
 
-# Mattermost Copilot Plugin [![Download Latest Master Build](https://img.shields.io/badge/Download-Latest%20Master%20Build-blue)](https://github.com/mattermost/mattermost-plugin-ai/releases/tag/latest-master)
+# Mattermost Channel Translations Plugin [![Download Latest Master Build](https://img.shields.io/badge/Download-Latest%20Master%20Build-blue)](https://github.com/mattermost/mattermost-plugin-channel-translations/releases/tag/latest-master)
 
-The Mattermost Copilot Plugin integrates AI capabilities directly into your [Mattermost](https://github.com/mattermost/mattermost) workspace, supporting both self-hosted and vendor-hosted Large Language Models (LLMs).
+The Mattermost Channel Translations Plugin enables automatic translation of messages in channels of your choice, allowing teams to communicate effectively across language barriers in [Mattermost](https://github.com/mattermost/mattermost).
 
 </div>
 
-![The Mattermost Copilot AI Plugin is an extension for mattermost that provides functionality for self-hosted and vendor-hosted LLMs](img/mattermost-ai-llm-access.webp)
+## Features
+
+- **Channel-Specific Translations** - Enable translations selectively in specific channels
+- **Multiple Language Support** - Configure multiple target languages for translation
+- **Seamless Integration** - Translations are displayed inline with original messages
+- **User Language Preferences** - Users can select their preferred translation language
 
 ## Installation
 
-1. Download the latest release from the [releases page](https://github.com/mattermost/mattermost-plugin-ai/releases). You can also download the **experimental** [latest master](https://github.com/mattermost/mattermost-plugin-ai/releases/tag/latest-master)
+1. Download the latest release from the [releases page](https://github.com/mattermost/mattermost-plugin-channel-translations/releases)
 2. Upload and enable the plugin through the Mattermost System Console
-3. Configure your desired LLM provider settings
-
-More details on the [Mattermost documentation site](https://docs.mattermost.com/configure/enable-copilot.html)
+3. Configure your desired translation settings
 
 ### System Requirements
 
@@ -22,18 +25,33 @@ More details on the [Mattermost documentation site](https://docs.mattermost.com/
   - v10.0 or later recommended
   - v9.11+ (ESR)
 - PostgreSQL database
-- Network access to your chosen LLM provider
+- Network access to the translation service
 
 ## Configuration
 
 After installation, you'll need to configure the plugin through the System Console:
 
-1. Navigate to **System Console > Plugins > Copilot**
-2. Create a bot
-3. Select and setup an upstream provider
-4. Check it's working in the copilot RHS
+1. Navigate to **System Console > Plugins > Channel Translations**
+2. Enable translations globally
+3. Configure the translation languages (comma-separated language codes, e.g., "en,es,fr,de")
+4. Configure the translation bot name if needed
+5. Save your settings
 
-For detailed configuration instructions, see the [Mattermost Product Documentation](https://docs.mattermost.com/configure/enable-copilot.html#mattermost-configuration).
+### Enabling Channel Translations
+
+Any user with the appropriate channel management permissions can enable translations:
+
+1. Go to a channel where you want to enable translations
+2. Click the channel header menu dropdown
+3. Select "Enable Translations"
+
+### User Settings
+
+Users can set their preferred translation language in their account settings:
+
+1. Go to Account Settings > Channel Translations
+2. Select your preferred language from the dropdown
+3. Save your settings
 
 ## Development
 
@@ -41,7 +59,7 @@ For detailed configuration instructions, see the [Mattermost Product Documentati
 
 - Go 1.22+
 - Node.js 20.11+
-- Access to an LLM provider (OpenAI, Anthropic, etc.)
+- Access to a translation service
 
 ### Local Setup
 
@@ -51,8 +69,8 @@ For detailed configuration instructions, see the [Mattermost Product Documentati
 
 3. Clone the repository:
 ```bash
-git clone https://github.com/mattermost/mattermost-plugin-ai.git
-cd mattermost-plugin-ai
+git clone https://github.com/mattermost/mattermost-plugin-channel-translations.git
+cd mattermost-plugin-channel-translations
 ```
 
 4. **Optional**. If you are developing to a remote server, setup environment variables to deploy:
@@ -73,7 +91,6 @@ make deploy
 - Run `make check-style` to verify code style
 - Run `make test` to run the test suite
 - Run `make e2e` to run the e2e tests
-
 
 ## License
 
