@@ -59,7 +59,6 @@ Users can set their preferred translation language in their account settings:
 
 - Go 1.22+
 - Node.js 20.11+
-- Access to a translation service
 
 ### Local Setup
 
