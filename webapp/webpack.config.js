@@ -84,6 +84,7 @@ const config = {
         'react-dom': 'ReactDOM',
         redux: 'Redux',
         'react-redux': 'ReactRedux',
+        'mattermost-redux': 'mattermost-redux',
         'prop-types': 'PropTypes',
         'react-intl': 'ReactIntl',
         'react-bootstrap': 'ReactBootstrap',

@@ -41,10 +41,9 @@ const ConfigContainer = styled.div`
 `;
 
 const defaultConfig = {
-    services: [],
-    llmBackend: '',
-    transcriptBackend: '',
-    enableLLMTrace: false,
+    enableTranslations: false,
+    translationLanguages: "",
+    translationBotName: "",
 };
 
 const BetaMessage = () => (
@@ -102,21 +101,12 @@ const Config = (props: Props) => {
                         onChange={(e) => props.onChange(props.id, {...value, translationLanguages: e.target.value})}
                         helpText={intl.formatMessage({defaultMessage: 'Comma-separated list of language codes to translate messages to (e.g. "en,es,fr"). Default is "en".'})}
                     />
-                    <SelectionItem
+                    <TextItem
                         label={intl.formatMessage({defaultMessage: 'Translation Bot'})}
                         value={value.translationBotName}
                         onChange={(e) => props.onChange(props.id, {...value, translationBotName: e.target.value})}
                         helpText={intl.formatMessage({defaultMessage: 'Select which bot will handle message translations.'})}
-                    >
-                        {props.value.bots.map((bot: any) => (
-                            <SelectionItemOption
-                                key={bot.name}
-                                value={bot.name}
-                            >
-                                {bot.displayName}
-                            </SelectionItemOption>
-                        ))}
-                    </SelectionItem>
+                    />
                 </ItemList>
             </Panel>
         </ConfigContainer>

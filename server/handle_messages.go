@@ -4,11 +4,9 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"sync"
 
-	"github.com/mattermost/mattermost-plugin-ai/client"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 )
@@ -68,8 +66,6 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 		return
 	}
 
-	aiClient := client.New()
-
 	// Get configured languages or use default
 	languages := p.getConfiguration().TranslationLanguages
 	if languages == "" {
@@ -87,53 +83,56 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 		go func(lang string) {
 			defer waitGroup.Done()
 
-			promptParameters := map[string]string{
-				"Message":  post.Message,
-				"Language": lang,
-			}
-			prompt := `
-{{define "translate_message.system"}}
-You are a translation expert. Translate the given text to the requested languages.
-
-You consider the text to translate the one contained between <text-to-translate></text-to-translate> tag.
-
-You always provide the most accurate and literal translation possible.
-
-You always provide the translations for all the lines in the translatable text.
-
-You don't change the emojis text from their original form, for example, :heart_eyes: should be kept as :heart_eyes:.
-
-Do not include any other text or explanation.
-
-For example, the text:
-<text-to-translate>
-Noted, @jespino . So no "on the fly" server reload is implemented ? :heart_eyes:
-
-This is a question, not a criticism, especially as the binary runs on an Alpine container, so no systemd
-</text-to-translate>
-
-should be translated to:
-
-Anotado, @jespino . Así que no esta implementada la recarga del servidor \"al vuelo\"? :heart_eyes:
-
-Esto es una pregunta, no una crítica, especialmente porque el binario se ejecuta en un contenedor Alpine, por lo que no hay systemd
-{{end}}
-
-{{define "translate_message.user"}}
-<text-to-translate>
-{{.PromptParameters.Message}}
-</text-to-translate>
-
-Target language: {{.PromptParameters.Language}}
-
-{{end}}
-			`
-
-			result, err := aiClient.Run(p.getConfiguration().Config.TranslationBotName, prompt, promptParameters)
-			if err != nil {
-				p.pluginAPI.Log.Warn(fmt.Sprintf("failed to get translations: %w", err))
-				return
-			}
+			// 			promptParameters := map[string]string{
+			// 				"Message":  post.Message,
+			// 				"Language": lang,
+			// 			}
+			// 			prompt := `
+			// {{define "translate_message.system"}}
+			// You are a translation expert. Translate the given text to the requested languages.
+			//
+			// You consider the text to translate the one contained between <text-to-translate></text-to-translate> tag.
+			//
+			// You always provide the most accurate and literal translation possible.
+			//
+			// You always provide the translations for all the lines in the translatable text.
+			//
+			// You don't change the emojis text from their original form, for example, :heart_eyes: should be kept as :heart_eyes:.
+			//
+			// Do not include any other text or explanation.
+			//
+			// For example, the text:
+			// <text-to-translate>
+			// Noted, @jespino . So no "on the fly" server reload is implemented ? :heart_eyes:
+			//
+			// This is a question, not a criticism, especially as the binary runs on an Alpine container, so no systemd
+			// </text-to-translate>
+			//
+			// should be translated to:
+			//
+			// Anotado, @jespino . Así que no esta implementada la recarga del servidor \"al vuelo\"? :heart_eyes:
+			//
+			// Esto es una pregunta, no una crítica, especialmente porque el binario se ejecuta en un contenedor Alpine, por lo que no hay systemd
+			// {{end}}
+			//
+			// {{define "translate_message.user"}}
+			// <text-to-translate>
+			// {{.PromptParameters.Message}}
+			// </text-to-translate>
+			//
+			// Target language: {{.PromptParameters.Language}}
+			//
+			// {{end}}
+			// 			`
+			//
+			// TODO: Make this work later
+			// aiClient := client.New()
+			// result, err := aiClient.Run(p.getConfiguration().Config.TranslationBotName, prompt, promptParameters)
+			// if err != nil {
+			// 	p.pluginAPI.Log.Warn(fmt.Sprintf("failed to get translations: %w", err))
+			// 	return
+			// }
+			result := "This is a test translation"
 
 			p.pluginAPI.Log.Debug("Extracted translation raw", "translation", result, "language", lang)
 
