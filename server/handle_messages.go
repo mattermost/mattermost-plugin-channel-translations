@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/mattermost/mattermost-plugin-ai/server/llm"
 	"github.com/mattermost/mattermost/server/public/model"
@@ -182,74 +183,42 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 		languages = "english"
 	}
 
+	waitGroup := sync.WaitGroup{}
+	mutex := sync.Mutex{}
 	translations := make(map[string]interface{})
-	for _, language := range strings.Split(languages, ",") {
-		lang := language
-		prevErrors := ""
-		maxRetries := 10
-		translation := ""
 
-		for {
+	for _, language := range strings.Split(languages, ",") {
+		waitGroup.Add(1)
+		go func(lang string) {
+			defer waitGroup.Done()
 			// Create translation context
 			context := p.MakeConversationContext(bot, user, nil, post)
 			context.PromptParameters = map[string]string{
-				"Message":        post.Message,
-				"Language":       lang,
-				"PreviousErrors": prevErrors,
+				"Message":  post.Message,
+				"Language": lang,
 			}
 
 			conversation, err := p.prompts.ChatCompletion("translate_message", context, llm.NewNoTools())
 			if err != nil {
-				return fmt.Errorf("failed to create translation prompt: %w", err)
+				p.pluginAPI.Log.Warn(fmt.Sprintf("failed to create translation prompt: %w", err))
+				return
 			}
-
-			p.pluginAPI.Log.Debug("Extracting translation", "language", lang)
 
 			result, err := bot.llm.ChatCompletionNoStream(conversation)
 			if err != nil {
-				return fmt.Errorf("failed to get translations: %w", err)
+				p.pluginAPI.Log.Warn(fmt.Sprintf("failed to get translations: %w", err))
+				return
 			}
 
-			translation = result
-			startTag := "<translation>"
-			endTag := "</translation>"
+			p.pluginAPI.Log.Debug("Extracted translation raw", "translation", result, "language", lang)
 
-			p.pluginAPI.Log.Debug("Extracted translation raw", "translation", translation, "language", lang)
-
-			errorFound := false
-			startIndex := indexOf(result, startTag)
-			if startIndex != -1 {
-				startIndex += len(startTag)
-				endIndex := indexOf(result, endTag)
-				if endIndex != -1 && startIndex < endIndex {
-					translation = result[startIndex:endIndex]
-					translation = strings.TrimSpace(translation)
-					p.pluginAPI.Log.Debug("Extracted translation", "translation", translation, "language", lang)
-				} else {
-					newError := "Could not find closing </translation> tag in translation response"
-					p.pluginAPI.Log.Warn(newError)
-					prevErrors = fmt.Sprintf("%s\n%s", prevErrors, newError)
-					errorFound = true
-				}
-			} else {
-				newError := "Could not find </translation> tag in translation response"
-				p.pluginAPI.Log.Warn(newError)
-				prevErrors = fmt.Sprintf("%s\n%s", prevErrors, newError)
-				errorFound = true
-			}
-
-			if errorFound {
-				maxRetries--
-				if maxRetries > 0 {
-					continue
-				}
-			}
-
-			break
-		}
-
-		translations[lang] = translation
+			mutex.Lock()
+			translations[lang] = result
+			mutex.Unlock()
+		}(language)
 	}
+
+	waitGroup.Wait()
 
 	// Store translations in post props
 	if post.Props == nil {

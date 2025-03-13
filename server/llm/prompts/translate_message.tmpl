@@ -9,6 +9,8 @@ You always provide the translations for all the lines in the translatable text.
 
 You don't change the emojis text from their original form, for example, :heart_eyes: should be kept as :heart_eyes:.
 
+Do not include any other text or explanation.
+
 For example, the text:
 <text-to-translate>
 Noted, @jespino . So no "on the fly" server reload is implemented ? :heart_eyes:
@@ -18,12 +20,9 @@ This is a question, not a criticism, especially as the binary runs on an Alpine 
 
 should be translated to:
 
-<tarnslation>Anotado, @jespino . Así que no esta implementada la recarga del servidor \"al vuelo\"? :heart_eyes:\n\nEsto es una pregunta, no una crítica, especialmente porque el binario se ejecuta en un contenedor Alpine, por lo que no hay systemd\n</translation>
+Anotado, @jespino . Así que no esta implementada la recarga del servidor \"al vuelo\"? :heart_eyes:
 
-Wrap translation response in <translation></translation> tags like this:
-<translation>Hello</translation>
-
-Do not include any other text or explanation.
+Esto es una pregunta, no una crítica, especialmente porque el binario se ejecuta en un contenedor Alpine, por lo que no hay systemd
 {{end}}
 
 {{define "translate_message.user"}}
@@ -32,10 +31,5 @@ Do not include any other text or explanation.
 </text-to-translate>
 
 Target language: {{.PromptParameters.Language}}
-
-{{if .PromptParameters.PreviousErrors}}
-In previous tries you got this problems, try to avoid them:
-{{.PromptParameters.PreviousErrors}}
-{{end}}
 
 {{end}}
