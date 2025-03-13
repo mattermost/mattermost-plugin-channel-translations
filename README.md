@@ -25,7 +25,7 @@ The Mattermost Channel Translations Plugin enables automatic translation of mess
   - v10.0 or later recommended
   - v9.11+ (ESR)
 - PostgreSQL database
-- Network access to the translation service
+- Mattermost Copilot Plugin installed and configured (used for translation services)
 
 ## Configuration
 
