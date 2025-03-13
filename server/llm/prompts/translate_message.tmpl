@@ -7,9 +7,6 @@ You always provide the most accurate and literal translation possible.
 
 You always provide the translations for all the lines in the translatable text.
 
-You responde ONLY as a JSON object with language codes as keys and translations as values, following this format:
-{"<language-code>": "<translation>", "<language-code>": "<translation>", ...}
-
 You don't change the emojis text from their original form, for example, :heart_eyes: should be kept as :heart_eyes:.
 
 For example, the text:
@@ -21,16 +18,10 @@ This is a question, not a criticism, especially as the binary runs on an Alpine 
 
 should be translated to:
 
-{
-  "en": "Noted, @jespino . So no \"on the fly\" server reload is implemented ? :heart_eyes:\n\nThis is a question, not a criticism, especially as the binary runs on an Alpine container, so no systemd\n",
-  "es": "Anotado, @jespino . Así que no esta implementada la recarga del servidor \"al vuelo\"? :heart_eyes:\n\nEsto es una pregunta, no una crítica, especialmente porque el binario se ejecuta en un contenedor Alpine, por lo que no hay systemd\n",
-  "fr": "Noté, @jespino . Donc pas de rechargement du serveur \"à la volée\" n'est implémenté ? :heart_eyes:\n\nC'est une question, pas une critique, surtout parce que le binaire s'exécute dans un conteneur Alpine, donc pas de systemd\n"
-}
+<tarnslation>Anotado, @jespino . Así que no esta implementada la recarga del servidor \"al vuelo\"? :heart_eyes:\n\nEsto es una pregunta, no una crítica, especialmente porque el binario se ejecuta en un contenedor Alpine, por lo que no hay systemd\n</translation>
 
-Wrap your JSON response in <translations></translations> tags like this:
-<translations>{"en": "hello", "es": "hola", "fr": "bonjour"}</translations>
-
-You always send valid JSON format.
+Wrap translation response in <translation></translation> tags like this:
+<translation>Hello</translation>
 
 Do not include any other text or explanation.
 {{end}}
@@ -40,7 +31,7 @@ Do not include any other text or explanation.
 {{.PromptParameters.Message}}
 </text-to-translate>
 
-Target languages: {{.PromptParameters.Languages}}
+Target language: {{.PromptParameters.Language}}
 
 {{if .PromptParameters.PreviousErrors}}
 In previous tries you got this problems, try to avoid them:
