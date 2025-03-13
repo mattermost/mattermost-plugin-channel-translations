@@ -172,54 +172,91 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 		}
 	}
 
+	user, err := p.pluginAPI.User.Get(bot.mmBot.UserId)
+	if err != nil {
+		return errors.New("failed to get translation bot user")
+	}
+
 	// Create translation context
-	context := p.MakeConversationContext(bot, nil, nil, post)
+	context := p.MakeConversationContext(bot, user, nil, post)
 	// Get configured languages or use default
 	languages := p.getConfiguration().TranslationLanguages
 	if languages == "" {
 		languages = "en"
 	}
 
-	context.PromptParameters = map[string]string{
-		"Message":   post.Message,
-		"Languages": languages,
-	}
-
-	// Get translations
-	conversation, err := p.prompts.ChatCompletion("translate_message", context, llm.NewNoTools())
-	if err != nil {
-		return fmt.Errorf("failed to create translation prompt: %w", err)
-	}
-
-	result, err := bot.llm.ChatCompletionNoStream(conversation)
-	if err != nil {
-		return fmt.Errorf("failed to get translations: %w", err)
-	}
-
-	// Extract JSON from <translations></translations> tags
-	jsonContent := result
-	startTag := "<translations>"
-	endTag := "</translations>"
-	
-	startIndex := indexOf(result, startTag)
-	if startIndex != -1 {
-		startIndex += len(startTag)
-		endIndex := indexOf(result, endTag)
-		if endIndex != -1 && startIndex < endIndex {
-			jsonContent = result[startIndex:endIndex]
-			jsonContent = strings.TrimSpace(jsonContent)
-			p.pluginAPI.Log.Debug("Extracted translation JSON", "json", jsonContent)
-		} else {
-			p.pluginAPI.Log.Warn("Could not find closing </translations> tag in translation response")
-		}
-	} else {
-		p.pluginAPI.Log.Warn("Could not find <translations> tag in translation response", "response", result)
-	}
-	
-	// Parse JSON response
 	translations := make(map[string]interface{})
-	if err := json.Unmarshal([]byte(jsonContent), &translations); err != nil {
-		return fmt.Errorf("failed to parse translations: %w", err)
+	maxRetries := 10
+	prevErrors := ""
+	for {
+		context.PromptParameters = map[string]string{
+			"Message":        post.Message,
+			"Languages":      languages,
+			"PreviousErrors": prevErrors,
+		}
+
+		// Get translations
+		conversation, err := p.prompts.ChatCompletion("translate_message", context, llm.NewNoTools())
+		if err != nil {
+			return fmt.Errorf("failed to create translation prompt: %w", err)
+		}
+		result, err := bot.llm.ChatCompletionNoStream(conversation)
+		if err != nil {
+			return fmt.Errorf("failed to get translations: %w", err)
+		}
+
+		// Extract JSON from <translations></translations> tags
+		jsonContent := result
+		startTag := "<translations>"
+		endTag := "</translations>"
+
+		startIndex := indexOf(result, startTag)
+		if startIndex != -1 {
+			startIndex += len(startTag)
+			endIndex := indexOf(result, endTag)
+			if endIndex != -1 && startIndex < endIndex {
+				jsonContent = result[startIndex:endIndex]
+				jsonContent = strings.TrimSpace(jsonContent)
+				p.pluginAPI.Log.Debug("Extracted translation JSON", "json", jsonContent)
+			} else {
+				p.pluginAPI.Log.Warn("Could not find closing </translations> tag in translation response")
+			}
+		} else {
+			p.pluginAPI.Log.Warn("Could not find <translations> tag in translation response", "response", result)
+		}
+
+		// Parse JSON response
+		if err := json.Unmarshal([]byte(jsonContent), &translations); err != nil {
+			newError := fmt.Sprintf("failed to parse translations: %w", err)
+			p.pluginAPI.Log.Debug(newError)
+			prevErrors = fmt.Sprintf("%s\n%s", prevErrors, newError)
+			maxRetries--
+			if maxRetries > 0 {
+				continue
+			}
+		}
+
+		errorFound := false
+		for _, language := range strings.Split(languages, ",") {
+			if strings.TrimSpace(language) == "" {
+				continue
+			}
+			if _, ok := translations[strings.TrimSpace(language)]; !ok {
+				newError := fmt.Sprintf("language translation not found: %s", strings.TrimSpace(language))
+				p.pluginAPI.Log.Debug(newError)
+				prevErrors = fmt.Sprintf("%s\n%s", prevErrors, newError)
+				errorFound = true
+			}
+		}
+
+		if errorFound {
+			maxRetries--
+			if maxRetries > 0 {
+				continue
+			}
+		}
+
+		break
 	}
 
 	// Store translations in post props

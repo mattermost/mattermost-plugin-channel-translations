@@ -327,3 +327,38 @@ export async function searchTeams(term: string) {
 export function getTeamIconUrl(teamId: string, lastTeamIconUpdate: number) {
     return Client4.getTeamIconUrl(teamId, lastTeamIconUpdate);
 }
+
+export async function getTranslationLanguages() {
+    const url = `${baseRoute()}/translation/languages`;
+    const response = await fetch(url, Client4.getOptions({
+        method: 'GET',
+    }));
+
+    if (response.ok) {
+        return response.json()
+    }
+
+    throw new ClientError(Client4.url, {
+        message: '',
+        status_code: response.status,
+        url,
+    });
+}
+
+export async function setUserTranslationLanguage(language: string) {
+    const url = `${baseRoute()}/translation/user_preference`;
+    const response = await fetch(url, Client4.getOptions({
+        method: 'POST',
+        body: JSON.stringify({language}),
+    }));
+
+    if (response.ok) {
+        return;
+    }
+
+    throw new ClientError(Client4.url, {
+        message: '',
+        status_code: response.status,
+        url,
+    });
+}

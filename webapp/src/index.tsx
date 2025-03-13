@@ -121,8 +121,10 @@ export default class Plugin {
             } as any);
         });
 
-        const TranslationButton = (channelId: any) => {
+        const TranslationButton = () => {
           const [isTranslated, setIsTranslated] = useState(false)
+          const channelId = store.getState().entities.channels.currentChannelId;
+
           useEffect(() => {
               getChannelTranslationStatus(channelId).then(({enabled}) => {
                   setIsTranslated(enabled)
@@ -178,23 +180,23 @@ export default class Plugin {
         const userSettings: PluginConfiguration = {
             id: manifest.id,
             uiName: 'Copilot',
-            icon: aiIcon,
+            icon: "icon-creation-outline",
             sections: [
                 {
-                    title: 'Translation Settings',
+                    title: 'Channel Translation Settings',
                     settings: [
                         {
                             type: 'custom',
                             name: 'translation_language',
-                            title: 'Preferred Translation Language',
-                            helpText: 'Select your preferred language for translations. This setting applies to all channels where translations are enabled.',
+                            title: 'Preferred Channel Translation Language',
+                            helpText: 'Select your preferred language for channel translations. This setting applies to all channels where translations are enabled.',
                             component: TranslationLanguageSetting
                         } as PluginConfigurationCustomSetting
                     ]
                 } as PluginConfigurationSection
             ]
         };
-        
+
         registry.registerUserSettings(userSettings);
 
         if (registry.registerNewMessagesSeparatorActionComponent) {
