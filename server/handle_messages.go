@@ -27,6 +27,35 @@ var (
 	ErrNoResponse = errors.New("no response")
 )
 
+func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
+	if !p.getConfiguration().EnableTranslations {
+		return post, ""
+	}
+
+	// Skip empty messages
+	if post.Message == "" {
+		return post, ""
+	}
+
+	// Skip if already translated
+	if _, ok := post.Props["translations"]; ok {
+		return post, ""
+	}
+
+	// Check if translations are enabled for this channel
+	enabled, err := p.isChannelTranslationEnabled(post.ChannelId)
+	if err != nil {
+		return post, ""
+	}
+	if !enabled {
+		return post, ""
+	}
+
+	newPost := post.Clone()
+	newPost.Type = "custom_translation"
+	return newPost, ""
+}
+
 func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	if err := p.handleMessages(post); err != nil {
 		if errors.Is(err, ErrNoResponse) {
@@ -156,6 +185,12 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 		return nil
 	}
 
+	post.Type = "translation"
+	err = p.pluginAPI.Post.UpdatePost(post)
+	if err != nil {
+		return fmt.Errorf("failed to update post type: %w", err)
+	}
+
 	// Get configured translation bot
 	cfg := p.getConfiguration()
 	var bot *Bot
@@ -186,8 +221,10 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 	waitGroup := sync.WaitGroup{}
 	mutex := sync.Mutex{}
 	translations := make(map[string]interface{})
+	waitlist := make(chan struct{}, 3)
 
 	for _, language := range strings.Split(languages, ",") {
+		waitlist <- struct{}{}
 		waitGroup.Add(1)
 		go func(lang string) {
 			defer waitGroup.Done()
@@ -214,11 +251,19 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 
 			mutex.Lock()
 			translations[lang] = result
+			// Store translations in post props
+			if post.Props == nil {
+				post.Props = make(model.StringInterface)
+			}
+			post.Props["translations"] = translations
+			_ = p.pluginAPI.Post.UpdatePost(post)
 			mutex.Unlock()
+			<-waitlist
 		}(language)
 	}
 
 	waitGroup.Wait()
+	close(waitlist)
 
 	// Store translations in post props
 	if post.Props == nil {
