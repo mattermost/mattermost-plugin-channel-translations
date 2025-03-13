@@ -1,4 +1,4 @@
-module github.com/mattermost/mattermost-plugin-ai
+module github.com/mattermost/mattermost-plugin-channel-translations
 
 go 1.22.6
 

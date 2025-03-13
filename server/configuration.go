@@ -6,20 +6,12 @@ package main
 import (
 	"fmt"
 	"reflect"
-
-	"github.com/mattermost/mattermost-plugin-ai/server/llm"
 )
 
 type Config struct {
-	Services                 []llm.ServiceConfig `json:"services"`
-	Bots                     []llm.BotConfig     `json:"bots"`
-	DefaultBotName           string              `json:"defaultBotName"`
-	TranscriptGenerator      string              `json:"transcriptBackend"`
-	EnableLLMTrace           bool                `json:"enableLLMTrace"`
-	AllowedUpstreamHostnames string              `json:"allowedUpstreamHostnames"`
-	TranslationBotName       string              `json:"translationBotName"`
-	EnableTranslations       bool                `json:"enableTranslations"`
-	TranslationLanguages     string              `json:"translationLanguages"`
+	TranslationBotName   string `json:"translationBotName"`
+	EnableTranslations   bool   `json:"enableTranslations"`
+	TranslationLanguages string `json:"translationLanguages"`
 }
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server
@@ -99,11 +91,6 @@ func (p *Plugin) OnConfigurationChange() error {
 	// If OnActivate hasn't run yet then don't do the change tasks
 	if p.pluginAPI == nil {
 		return nil
-	}
-
-	// Extra config change tasks
-	if err := p.EnsureBots(); err != nil {
-		return fmt.Errorf("failed on config change: %w", err)
 	}
 
 	return nil

@@ -4,14 +4,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"errors"
-
 	"github.com/gin-gonic/gin"
-	"github.com/mattermost/mattermost-plugin-ai/server/llm"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 )
@@ -26,23 +24,6 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	router := gin.Default()
 	router.Use(p.ginlogger)
 	router.Use(p.MattermostAuthorizationRequired)
-	router.Use(p.metricsMiddleware)
-
-	router.GET("/ai_threads", p.handleGetAIThreads)
-	router.GET("/ai_bots", p.handleGetAIBots)
-
-	botRequiredRouter := router.Group("")
-	botRequiredRouter.Use(p.aiBotRequired)
-
-	postRouter := botRequiredRouter.Group("/post/:postid")
-	postRouter.Use(p.postAuthorizationRequired)
-	postRouter.POST("/react", p.handleReact)
-	postRouter.POST("/analyze", p.handleThreadAnalysis)
-	postRouter.POST("/transcribe/file/:fileid", p.handleTranscribeFile)
-	postRouter.POST("/summarize_transcription", p.handleSummarizeTranscription)
-	postRouter.POST("/stop", p.handleStop)
-	postRouter.POST("/regenerate", p.handleRegenerate)
-	postRouter.POST("/postback_summary", p.handlePostbackSummary)
 
 	// Translations endpoints don't require bot authorization
 	translationsRouter := router.Group("/channel/:channelid")
@@ -53,24 +34,7 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	router.GET("/translation/languages", p.handleGetTranslationLanguages)
 	router.POST("/translation/user_preference", p.handleSetUserTranslationLanguage)
 
-	channelRouter := botRequiredRouter.Group("/channel/:channelid")
-	channelRouter.Use(p.channelAuthorizationRequired)
-	channelRouter.POST("/since", p.handleSince)
-
-	adminRouter := router.Group("/admin")
-	adminRouter.Use(p.mattermostAdminAuthorizationRequired)
-
 	router.ServeHTTP(w, r)
-}
-
-func (p *Plugin) aiBotRequired(c *gin.Context) {
-	botUsername := c.DefaultQuery("botUsername", p.getConfiguration().DefaultBotName)
-	bot := p.GetBotByUsernameOrFirst(botUsername)
-	if bot == nil {
-		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to get bot: %s", botUsername))
-		return
-	}
-	c.Set(ContextBotKey, bot)
 }
 
 func (p *Plugin) ginlogger(c *gin.Context) {
@@ -89,90 +53,7 @@ func (p *Plugin) MattermostAuthorizationRequired(c *gin.Context) {
 	}
 }
 
-func (p *Plugin) handleGetAIThreads(c *gin.Context) {
-	userID := c.GetHeader("Mattermost-User-Id")
-
-	p.botsLock.RLock()
-	defer p.botsLock.RUnlock()
-	dmChannelIDs := []string{}
-	for _, bot := range p.bots {
-		botDMChannel, err := p.pluginAPI.Channel.GetDirect(userID, bot.mmBot.UserId)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("unable to get DM with AI bot: %w", err))
-			return
-		}
-
-		// Extra permissions checks are not totally necessary since a user should always have permission to read their own DMs
-		if !p.pluginAPI.User.HasPermissionToChannel(userID, botDMChannel.Id, model.PermissionReadChannel) {
-			c.AbortWithError(http.StatusForbidden, errors.New("user doesn't have permission to read channel"))
-			return
-		}
-
-		dmChannelIDs = append(dmChannelIDs, botDMChannel.Id)
-	}
-
-	threads, err := p.getAIThreads(dmChannelIDs)
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to get posts for bot DM: %w", err))
-		return
-	}
-
-	c.JSON(http.StatusOK, threads)
-}
-
-type AIBotInfo struct {
-	ID                 string                 `json:"id"`
-	DisplayName        string                 `json:"displayName"`
-	Username           string                 `json:"username"`
-	LastIconUpdate     int64                  `json:"lastIconUpdate"`
-	DMChannelID        string                 `json:"dmChannelID"`
-	ChannelAccessLevel llm.ChannelAccessLevel `json:"channelAccessLevel"`
-	ChannelIDs         []string               `json:"channelIDs"`
-	UserAccessLevel    llm.UserAccessLevel    `json:"userAccessLevel"`
-	UserIDs            []string               `json:"userIDs"`
-}
-
-func (p *Plugin) handleGetAIBots(c *gin.Context) {
-	userID := c.GetHeader("Mattermost-User-Id")
-
-	p.botsLock.RLock()
-	defer p.botsLock.RUnlock()
-
-	// Get the info from all the bots.
-	// Put the default bot first.
-	bots := make([]AIBotInfo, 0, len(p.bots))
-	defaultBotName := p.getConfiguration().DefaultBotName
-	for i, bot := range p.bots {
-		// Don't return bots the user is excluded from using.
-		if p.checkUsageRestrictionsForUser(bot, userID) != nil {
-			continue
-		}
-		direct, err := p.pluginAPI.Channel.GetDirect(userID, bot.mmBot.UserId)
-		if err != nil {
-			p.API.LogError("unable to get direct channel for bot", "error", err)
-			continue
-		}
-		bots = append(bots, AIBotInfo{
-			ID:                 bot.mmBot.UserId,
-			DisplayName:        bot.mmBot.DisplayName,
-			Username:           bot.mmBot.Username,
-			LastIconUpdate:     bot.mmBot.LastIconUpdate,
-			DMChannelID:        direct.Id,
-			ChannelAccessLevel: bot.cfg.ChannelAccessLevel,
-			ChannelIDs:         bot.cfg.ChannelIDs,
-			UserAccessLevel:    bot.cfg.UserAccessLevel,
-			UserIDs:            bot.cfg.UserIDs,
-		})
-		if bot.mmBot.Username == defaultBotName {
-			bots[0], bots[i] = bots[i], bots[0]
-		}
-	}
-
-	c.JSON(http.StatusOK, bots)
-}
-
 // Translation Language Preferences API
-
 type TranslationLanguagesResponse struct {
 	Languages      []string `json:"languages"`
 	UserPreference string   `json:"userPreference"`
@@ -180,7 +61,7 @@ type TranslationLanguagesResponse struct {
 
 func (p *Plugin) handleGetTranslationLanguages(c *gin.Context) {
 	userID := c.GetHeader("Mattermost-User-Id")
-	
+
 	// Get configured languages from the plugin config
 	configuredLanguages := []string{}
 	if p.getConfiguration().TranslationLanguages != "" {
@@ -190,15 +71,15 @@ func (p *Plugin) handleGetTranslationLanguages(c *gin.Context) {
 			configuredLanguages[i] = strings.TrimSpace(lang)
 		}
 	}
-	
+
 	// Get user's preference
 	preference, _ := p.API.KVGet(getUserTranslationPreferenceKey(userID))
-	
+
 	response := TranslationLanguagesResponse{
 		Languages:      configuredLanguages,
 		UserPreference: string(preference),
 	}
-	
+
 	c.JSON(http.StatusOK, response)
 }
 
@@ -208,22 +89,86 @@ type SetTranslationLanguageRequest struct {
 
 func (p *Plugin) handleSetUserTranslationLanguage(c *gin.Context) {
 	userID := c.GetHeader("Mattermost-User-Id")
-	
+
 	var req SetTranslationLanguageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	// Save user preference
 	if err := p.API.KVSet(getUserTranslationPreferenceKey(userID), []byte(req.Language)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save preference"})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 func getUserTranslationPreferenceKey(userID string) string {
 	return fmt.Sprintf("user_translation_preference_%s", userID)
+}
+
+func (p *Plugin) handleToggleTranslations(c *gin.Context) {
+	channelID := c.Param("channelid")
+	userID := c.GetHeader("Mattermost-User-Id")
+
+	// Get channel to check its type
+	channel, err := p.pluginAPI.Channel.Get(channelID)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	// Check if user has admin permissions based on channel type
+	hasPermission := false
+	if channel.Type == model.ChannelTypePrivate {
+		hasPermission = p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionManagePrivateChannelProperties)
+	} else {
+		hasPermission = p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionManagePublicChannelProperties)
+	}
+
+	if !hasPermission {
+		c.AbortWithError(http.StatusForbidden, errors.New("user doesn't have permission to manage channel"))
+		return
+	}
+
+	var data struct {
+		Enabled bool `json:"enabled"`
+	}
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if err := p.setChannelTranslationEnabled(channelID, data.Enabled); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	// Return the new status in the response
+	c.JSON(http.StatusOK, map[string]bool{
+		"enabled": data.Enabled,
+	})
+}
+
+func (p *Plugin) handleGetTranslationStatus(c *gin.Context) {
+	channelID := c.Param("channelid")
+	userID := c.GetHeader("Mattermost-User-Id")
+
+	// Check if user has read permissions for the channel
+	if !p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionReadChannel) {
+		c.AbortWithError(http.StatusForbidden, errors.New("user doesn't have permission to read channel"))
+		return
+	}
+
+	enabled, err := p.isChannelTranslationEnabled(channelID)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]bool{
+		"enabled": enabled,
+	})
 }

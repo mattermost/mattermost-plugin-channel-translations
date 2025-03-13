@@ -4,27 +4,13 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"sync"
 
-	"github.com/mattermost/mattermost-plugin-ai/server/llm"
+	"github.com/mattermost/mattermost-plugin-ai/client"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
-)
-
-const (
-	ActivateAIProp  = "activate_ai"
-	FromWebhookProp = "from_webhook"
-	FromBotProp     = "from_bot"
-	FromPluginProp  = "from_plugin"
-	WranglerProp    = "wrangler"
-)
-
-var (
-	// ErrNoResponse is returned when no response is posted under a normal condition.
-	ErrNoResponse = errors.New("no response")
 )
 
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
@@ -57,160 +43,32 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 }
 
 func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
-	if err := p.handleMessages(post); err != nil {
-		if errors.Is(err, ErrNoResponse) {
-			p.pluginAPI.Log.Debug(err.Error())
-		} else {
-			p.pluginAPI.Log.Error(err.Error())
-		}
-	}
-}
-
-func (p *Plugin) handleMessages(post *model.Post) error {
-	// Process translations first
-	if err := p.handleTranslations(post); err != nil {
-		p.pluginAPI.Log.Error("Failed to handle translations", "error", err)
-	}
-
-	// Don't respond to ourselves
-	if p.IsAnyBot(post.UserId) {
-		return fmt.Errorf("not responding to ourselves: %w", ErrNoResponse)
-	}
-
-	// Never respond to remote posts
-	if post.RemoteId != nil && *post.RemoteId != "" {
-		return fmt.Errorf("not responding to remote posts: %w", ErrNoResponse)
-	}
-
-	// Wrangler posts should be ignored
-	if post.GetProp(WranglerProp) != nil {
-		return fmt.Errorf("not responding to wrangler posts: %w", ErrNoResponse)
-	}
-
-	// Don't respond to plugins unless they ask for it
-	if post.GetProp(FromPluginProp) != nil && post.GetProp(ActivateAIProp) == nil {
-		return fmt.Errorf("not responding to plugin posts: %w", ErrNoResponse)
-	}
-
-	// Don't respond to webhooks
-	if post.GetProp(FromWebhookProp) != nil {
-		return fmt.Errorf("not responding to webhook posts: %w", ErrNoResponse)
-	}
-
-	channel, err := p.pluginAPI.Channel.Get(post.ChannelId)
-	if err != nil {
-		return fmt.Errorf("unable to get channel: %w", err)
-	}
-
-	postingUser, err := p.pluginAPI.User.Get(post.UserId)
-	if err != nil {
-		return err
-	}
-
-	// Don't respond to other bots unless they ask for it
-	if (postingUser.IsBot || post.GetProp(FromBotProp) != nil) && post.GetProp(ActivateAIProp) == nil {
-		return fmt.Errorf("not responding to other bots: %w", ErrNoResponse)
-	}
-
-	// Check we are mentioned like @ai
-	if bot := p.GetBotMentioned(post.Message); bot != nil {
-		return p.handleMentions(bot, post, postingUser, channel)
-	}
-
-	// Check if this is post in the DM channel with any bot
-	if bot := p.GetBotForDMChannel(channel); bot != nil {
-		return p.handleDMs(bot, channel, postingUser, post)
-	}
-
-	return nil
-}
-
-func (p *Plugin) handleMentions(bot *Bot, post *model.Post, postingUser *model.User, channel *model.Channel) error {
-	if err := p.checkUsageRestrictions(postingUser.Id, bot, channel); err != nil {
-		return err
-	}
-
-	if err := p.processUserRequestToBot(bot, p.MakeConversationContext(bot, postingUser, channel, post)); err != nil {
-		return fmt.Errorf("unable to process bot mention: %w", err)
-	}
-
-	return nil
-}
-
-func (p *Plugin) handleDMs(bot *Bot, channel *model.Channel, postingUser *model.User, post *model.Post) error {
-	if err := p.checkUsageRestrictionsForUser(bot, postingUser.Id); err != nil {
-		return err
-	}
-
-	if err := p.processUserRequestToBot(bot, p.MakeConversationContext(bot, postingUser, channel, post)); err != nil {
-		return fmt.Errorf("unable to process bot DM: %w", err)
-	}
-
-	return nil
-}
-
-// indexOf returns the index of the first instance of substring in s,
-// or -1 if substring is not present in s.
-func indexOf(s, substr string) int {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return i
-		}
-	}
-	return -1
-}
-
-func (p *Plugin) handleTranslations(post *model.Post) error {
 	// Skip if global translations are disabled
 	if !p.getConfiguration().EnableTranslations {
-		return nil
+		return
 	}
 
 	// Skip empty messages
 	if post.Message == "" {
-		return nil
+		return
 	}
 
 	// Skip if already translated
 	if _, ok := post.Props["translations"]; ok {
-		return nil
+		return
 	}
 
 	// Check if translations are enabled for this channel
 	enabled, err := p.isChannelTranslationEnabled(post.ChannelId)
 	if err != nil {
-		return fmt.Errorf("failed to check channel translation status: %w", err)
+		p.pluginAPI.Log.Debug("failed to check channel translation status", "error", err)
+		return
 	}
 	if !enabled {
-		return nil
+		return
 	}
 
-	post.Type = "translation"
-	err = p.pluginAPI.Post.UpdatePost(post)
-	if err != nil {
-		return fmt.Errorf("failed to update post type: %w", err)
-	}
-
-	// Get configured translation bot
-	cfg := p.getConfiguration()
-	var bot *Bot
-	if cfg.TranslationBotName != "" {
-		bot = p.GetBotByUsername(cfg.TranslationBotName)
-	}
-	if bot == nil {
-		// Fallback to first bot if translation bot not found
-		bots := p.GetBots()
-		if len(bots) > 0 {
-			bot = bots[0]
-		} else {
-			return errors.New("no bot configured for translations")
-		}
-	}
-
-	user, err := p.pluginAPI.User.Get(bot.mmBot.UserId)
-	if err != nil {
-		return errors.New("failed to get translation bot user")
-	}
+	aiClient := client.New()
 
 	// Get configured languages or use default
 	languages := p.getConfiguration().TranslationLanguages
@@ -228,20 +86,50 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 		waitGroup.Add(1)
 		go func(lang string) {
 			defer waitGroup.Done()
-			// Create translation context
-			context := p.MakeConversationContext(bot, user, nil, post)
-			context.PromptParameters = map[string]string{
+
+			promptParameters := map[string]string{
 				"Message":  post.Message,
 				"Language": lang,
 			}
+			prompt := `
+{{define "translate_message.system"}}
+You are a translation expert. Translate the given text to the requested languages.
 
-			conversation, err := p.prompts.ChatCompletion("translate_message", context, llm.NewNoTools())
-			if err != nil {
-				p.pluginAPI.Log.Warn(fmt.Sprintf("failed to create translation prompt: %w", err))
-				return
-			}
+You consider the text to translate the one contained between <text-to-translate></text-to-translate> tag.
 
-			result, err := bot.llm.ChatCompletionNoStream(conversation)
+You always provide the most accurate and literal translation possible.
+
+You always provide the translations for all the lines in the translatable text.
+
+You don't change the emojis text from their original form, for example, :heart_eyes: should be kept as :heart_eyes:.
+
+Do not include any other text or explanation.
+
+For example, the text:
+<text-to-translate>
+Noted, @jespino . So no "on the fly" server reload is implemented ? :heart_eyes:
+
+This is a question, not a criticism, especially as the binary runs on an Alpine container, so no systemd
+</text-to-translate>
+
+should be translated to:
+
+Anotado, @jespino . Así que no esta implementada la recarga del servidor \"al vuelo\"? :heart_eyes:
+
+Esto es una pregunta, no una crítica, especialmente porque el binario se ejecuta en un contenedor Alpine, por lo que no hay systemd
+{{end}}
+
+{{define "translate_message.user"}}
+<text-to-translate>
+{{.PromptParameters.Message}}
+</text-to-translate>
+
+Target language: {{.PromptParameters.Language}}
+
+{{end}}
+			`
+
+			result, err := aiClient.Run(p.getConfiguration().Config.TranslationBotName, prompt, promptParameters)
 			if err != nil {
 				p.pluginAPI.Log.Warn(fmt.Sprintf("failed to get translations: %w", err))
 				return
@@ -273,8 +161,7 @@ func (p *Plugin) handleTranslations(post *model.Post) error {
 
 	// Update the post
 	if err := p.pluginAPI.Post.UpdatePost(post); err != nil {
-		return fmt.Errorf("failed to update post with translations: %w", err)
+		p.pluginAPI.Log.Debug("failed to update post with translations", "error", err)
+		return
 	}
-
-	return nil
 }
