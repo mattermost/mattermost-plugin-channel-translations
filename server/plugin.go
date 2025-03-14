@@ -63,5 +63,8 @@ func (p *Plugin) isChannelTranslationEnabled(channelID string) (bool, error) {
 func (p *Plugin) OnActivate() error {
 	p.pluginAPI = pluginapi.NewClient(p.API, p.Driver)
 	p.licenseChecker = enterprise.NewLicenseChecker(p.pluginAPI)
+	if !p.licenseChecker.IsLicensed() {
+		return fmt.Errorf("invalid license, this software requires Mattermost Enterprise")
+	}
 	return nil
 }

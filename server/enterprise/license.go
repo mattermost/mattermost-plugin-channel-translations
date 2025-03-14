@@ -22,27 +22,9 @@ func NewLicenseChecker(pluginAPIClient *pluginapi.Client) *LicenseChecker {
 }
 
 // isAtLeastE20Licensed returns true when the server either has an E20 license or is configured for development.
-func (e *LicenseChecker) isAtLeastE20Licensed() bool {
+func (e *LicenseChecker) IsLicensed() bool {
 	config := e.pluginAPIClient.Configuration.GetConfig()
 	license := e.pluginAPIClient.System.GetLicense()
 
 	return pluginapi.IsE20LicensedOrDevelopment(config, license)
-}
-
-// isAtLeastE10Licensed returns true when the server either has at least an E10 license or is configured for development.
-func (e *LicenseChecker) isAtLeastE10Licensed() bool { //nolint:unused
-	config := e.pluginAPIClient.Configuration.GetConfig()
-	license := e.pluginAPIClient.System.GetLicense()
-
-	return pluginapi.IsE10LicensedOrDevelopment(config, license)
-}
-
-// IsMultiLLMLicensed returns true when the server either has a multi-LLM license or is configured for development.
-func (e *LicenseChecker) IsMultiLLMLicensed() bool {
-	return e.isAtLeastE20Licensed()
-}
-
-// IsBasicsLicensed returns true when the server either has a license for basic features or is configured for development.
-func (e *LicenseChecker) IsBasicsLicensed() bool {
-	return e.isAtLeastE20Licensed()
 }
