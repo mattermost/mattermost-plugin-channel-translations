@@ -15,7 +15,7 @@ import type {
 import manifest from '@/manifest';
 
 import Config from './components/system_console/config';
-import {getChannelTranslationStatus, toggleChannelTranslations} from './client';
+import {getChannelTranslationStatus, toggleChannelTranslations, translatePost} from './client';
 import TranslationLanguageSetting from './components/user_settings/translation_language';
 import PostEventListener from './websocket';
 import {setupRedux} from './redux';
@@ -54,6 +54,21 @@ export default class Plugin {
           }
           return <FormattedMessage defaultMessage='Enable Translations'/>;
         }
+
+        registry.registerPostDropdownMenuAction(
+          <>
+            <i className='icon icon-globe'/>
+            <FormattedMessage defaultMessage='Translate again'/>
+          </>,
+          (postId: any) => {
+            const state = store.getState();
+            const lang = (state.entities.preferences.myPreferences["pp_mattermost-channel-translatio--translation_language"] || {}).value || 'en';
+            translatePost(postId, lang);
+          },
+          (post: any) => {
+            return post.type !== 'custom_translation';
+          },
+        )
 
         registry.registerPostTypeComponent('custom_translation', TranslatedPost);
         registry.registerChannelHeaderMenuAction(
