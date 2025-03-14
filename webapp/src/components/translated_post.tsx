@@ -19,6 +19,12 @@ const Loading = styled.div`
 
 const PostContainer = styled.div`
   position: relative;
+  
+  &:hover {
+    .translations-button {
+      display: block;
+    }
+  }
 `;
 
 const TranslationsButton = styled.button`
@@ -34,6 +40,7 @@ const TranslationsButton = styled.button`
   opacity: 0.6;
   transition: opacity 0.2s ease;
   z-index: 1;
+  display: none;
   
   &:hover {
     opacity: 1;
@@ -78,6 +85,7 @@ export const TranslatedPost = (props: Props) => {
         <PostContainer>
             {hasTranslations && (
                 <TranslationsButton
+                    className="translations-button"
                     onClick={() => setShowTranslationsModal(true)}
                     title="View all translations"
                 >
