@@ -2,6 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
+import styled from 'styled-components';
 import {useSelector} from 'react-redux';
 import {FormattedMessage} from 'react-intl';
 
@@ -10,6 +11,10 @@ import LoadingSpinner from 'src/components/widgets/loading_spinner';
 import {UserProfile} from '@mattermost/types/users';
 
 import PostText from './post_text';
+
+const Loading = styled.div`
+  opacity: 0.7;
+`
 
 interface Props {
     post: any;
@@ -25,8 +30,8 @@ export const TranslatedPost = (props: Props) => {
     }
 
     const userPreferences = useSelector((state: GlobalState) => state.entities.preferences.myPreferences);
-    console.log(userPreferences)
-    const currentUserTranslationPreference = (userPreferences["pp_mattermost-channel-translatio--translation_language"] || {}).value
+    const currentUserTranslationPreference = (userPreferences["pp_mattermost-channel-translatio--translation_language"] || {}).value || 'en'
+
     const post = props.post;
     let message = post.message
     let loading = false
@@ -37,11 +42,10 @@ export const TranslatedPost = (props: Props) => {
         loading = false
         message = post.props?.translations[currentUserTranslationPreference || currentUserLocale]
     }
-    console.log(currentUserTranslationPreference, message)
 
     return (
         <>
-            {loading && <p><LoadingSpinner/><FormattedMessage defaultMessage="Translating"/></p>}
+            {loading && <Loading><LoadingSpinner/><FormattedMessage defaultMessage="Translating"/></Loading>}
             {!loading && <PostText
                 message={message}
                 channelID={props.post.channel_id}

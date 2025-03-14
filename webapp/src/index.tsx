@@ -76,7 +76,7 @@ export default class Plugin {
         const userSettings: PluginConfiguration = {
             id: manifest.id,
             uiName: 'Channel translations',
-            icon: "icon-creation-outline",
+            icon: "icon-globe",
             sections: [
                 {
                     title: 'Channel Translation Settings',

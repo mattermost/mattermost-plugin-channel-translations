@@ -2,6 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React, {useState, useEffect} from 'react';
+import {useSelector} from 'react-redux';
 import {FormattedMessage} from 'react-intl';
 import {getTranslationLanguages} from '@/client'
 
@@ -10,12 +11,14 @@ import type {PluginCustomSettingComponent} from '@mattermost/types/plugins/user_
 const TranslationLanguageSetting: PluginCustomSettingComponent = ({informChange}) => {
     const [languages, setLanguages] = useState<string[]>([]);
     const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+    const userPreferences = useSelector((state: any) => state.entities.preferences.myPreferences);
+    const currentUserTranslationPreference = (userPreferences["pp_mattermost-channel-translatio--translation_language"] || {}).value || 'en'
 
     useEffect(() => {
+      setSelectedLanguage(currentUserTranslationPreference);
       getTranslationLanguages().then((data) => {
           if (data && data.languages) {
               setLanguages(data.languages);
-              setSelectedLanguage(data.userPreference || '');
           }
       })
       .catch((error) => {
@@ -28,6 +31,7 @@ const TranslationLanguageSetting: PluginCustomSettingComponent = ({informChange}
         setSelectedLanguage(language);
         informChange('translation_language', language);
     };
+
 
     return (
         <div className='form-group'>
