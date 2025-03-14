@@ -2,6 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React, {useState, useEffect} from 'react';
+import {useSelector} from 'react-redux';
 import {Store, Action} from 'redux';
 import {FormattedMessage} from 'react-intl';
 
@@ -19,8 +20,11 @@ import {getChannelTranslationStatus, toggleChannelTranslations, translatePost} f
 import TranslationLanguageSetting from './components/user_settings/translation_language';
 import PostEventListener from './websocket';
 import {setupRedux} from './redux';
+import {doOpenTranslationsModal, useOpenTranslationsModal} from './hooks';
 import { TranslatedPost } from './components/translated_post';
 import TranslationsModal from './components/translations_modal';
+import {getTranslationsModalPost} from './selectors';
+
 
 type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>
 
@@ -31,6 +35,7 @@ export default class Plugin {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
     public async initialize(registry: any, store: WebappStore) {
         setupRedux(registry, store);
+        const TranslationsModalContext = React.createContext({post: null, show: false});
 
         registry.registerTranslations((locale: string) => {
             try {
@@ -56,23 +61,6 @@ export default class Plugin {
           return <FormattedMessage defaultMessage='Enable Translations'/>;
         }
 
-        // Global state for the translations modal
-        const modalRoot = document.createElement('div');
-        modalRoot.id = 'translations-modal-root';
-        document.body.appendChild(modalRoot);
-        
-        // State to control the translations modal
-        const [showModal, setShowModal] = React.useState(false);
-        const [modalPost, setModalPost] = React.useState<any>(null);
-        const [modalTranslations, setModalTranslations] = React.useState<Record<string, string>>({});
-        
-        // Function to open the translations modal
-        const openTranslationsModal = (post: any) => {
-            setModalPost(post);
-            setModalTranslations(post.props?.translations || {});
-            setShowModal(true);
-        };
-        
         // Register the "Translate again" button
         registry.registerPostDropdownMenuAction(
           <>
@@ -88,11 +76,11 @@ export default class Plugin {
             return post.type !== 'custom_translation';
           },
         );
-        
+
         // Register the "View translations" button
         registry.registerPostDropdownMenuAction(
           <>
-            <i className='icon icon-eye'/>
+            <i className='icon icon-globe'/>
             <FormattedMessage defaultMessage='View translations'/>
           </>,
           (postId: any) => {
@@ -100,26 +88,31 @@ export default class Plugin {
             const state = store.getState();
             const postsById = state.entities.posts.posts;
             const post = postsById[postId];
-            
+
             if (post && post.props?.translations) {
-                openTranslationsModal(post);
+                doOpenTranslationsModal(post, store.dispatch)
             }
           },
           (post: any) => {
             // Only show for posts that have translations
-            return post.props?.translations && Object.keys(post.props.translations).length > 0;
+            return post.type !== 'custom_translation';
           },
         );
-        
+
         // Render the translations modal outside the component tree
         // We use ReactDOM.createPortal to mount it at the root level
-        registry.registerComponent({component: () => (
-            <TranslationsModal
-                show={showModal}
-                onHide={() => setShowModal(false)}
-                post={modalPost}
-                translations={modalTranslations}
-            />
+        registry.registerRootComponent(() => {
+          const post = useSelector(getTranslationsModalPost);
+          const openTranslationsModal = useOpenTranslationsModal()
+
+          return (
+            <TranslationsModalContext.Provider value={{post: null, show: false}}>
+              <TranslationsModal
+                  show={!!post}
+                  onHide={() => openTranslationsModal(null)}
+                  post={post}
+              />
+            </TranslationsModalContext.Provider>
         )});
 
         registry.registerPostTypeComponent('custom_translation', TranslatedPost);

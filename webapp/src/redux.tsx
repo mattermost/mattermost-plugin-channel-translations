@@ -6,7 +6,18 @@ import {GlobalState} from '@mattermost/types/store';
 
 type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>
 
+function translationsModal(state = false, action: {type: string, post: any}) {
+    switch (action.type) {
+    case "OPEN_TRANSLATIONS_MODAL":
+        return action.post || false;
+    default:
+        return state;
+    }
+}
+
 export async function setupRedux(registry: any, store: WebappStore) {
-    const reducer = combineReducers({});
+    const reducer = combineReducers({
+      translationsModal,
+    });
     registry.registerReducer(reducer);
 }

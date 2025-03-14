@@ -10,7 +10,7 @@ const TranslationItem = styled.div`
     margin-bottom: 16px;
     padding-bottom: 16px;
     border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
-    
+
     &:last-child {
         margin-bottom: 0;
         padding-bottom: 0;
@@ -31,33 +31,14 @@ interface TranslationsModalProps {
     show: boolean;
     onHide: () => void;
     post: any;
-    translations: Record<string, string>;
 }
 
-const TranslationsModal: React.FC<TranslationsModalProps> = ({show, onHide, post, translations}) => {
-    // Function to get language display name
-    const getLanguageDisplayName = (code: string) => {
-        const languages: Record<string, string> = {
-            en: 'English',
-            es: 'Spanish',
-            fr: 'French',
-            de: 'German',
-            it: 'Italian',
-            pt: 'Portuguese',
-            ja: 'Japanese',
-            ko: 'Korean',
-            zh: 'Chinese',
-            ru: 'Russian',
-            // Add more languages as needed
-        };
-        return languages[code] || code;
-    };
-
+const TranslationsModal: React.FC<TranslationsModalProps> = ({show, onHide, post}) => {
+    const translations = post.props?.translations || {}
     return (
         <Modal
             show={show}
             onHide={onHide}
-            centered
             aria-labelledby="translations-modal-title"
         >
             <Modal.Header closeButton>
@@ -72,12 +53,10 @@ const TranslationsModal: React.FC<TranslationsModalProps> = ({show, onHide, post
                     </TranslationLanguage>
                     <TranslationText>{post.message}</TranslationText>
                 </TranslationItem>
-                
+
                 {Object.entries(translations || {}).map(([lang, text]) => (
                     <TranslationItem key={lang}>
-                        <TranslationLanguage>
-                            {getLanguageDisplayName(lang)}
-                        </TranslationLanguage>
+                        <TranslationLanguage>{lang}</TranslationLanguage>
                         <TranslationText>{text}</TranslationText>
                     </TranslationItem>
                 ))}

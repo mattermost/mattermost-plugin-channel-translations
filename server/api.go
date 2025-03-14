@@ -33,7 +33,7 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	// Translation language endpoints
 	router.GET("/translation/languages", p.handleGetTranslationLanguages)
 	router.POST("/translation/user_preference", p.handleSetUserTranslationLanguage)
-	
+
 	// Post translation endpoints
 	router.POST("/post/:postid/translate", p.handleTranslatePost)
 
@@ -128,7 +128,7 @@ func (p *Plugin) handleTranslatePost(c *gin.Context) {
 	}
 
 	// Get the post
-	post, err := p.API.GetPost(postID)
+	post, err := p.pluginAPI.Post.GetPost(postID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get post"})
 		return
@@ -178,7 +178,7 @@ func (p *Plugin) handleTranslatePost(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"translatedText": translatedText,
-		"originalText": post.Message,
+		"originalText":   post.Message,
 		"targetLanguage": req.Lang,
 	})
 }
