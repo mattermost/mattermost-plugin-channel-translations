@@ -15,6 +15,10 @@ function channelRoute(channelid: string): string {
     return `${baseRoute()}/channel/${channelid}`;
 }
 
+function postRoute(postId: string): string {
+    return `${baseRoute()}/post/${postId}`;
+}
+
 
 export async function getChannelTranslationStatus(channelId: string) {
     const url = `${channelRoute(channelId)}/translations`;
@@ -38,6 +42,24 @@ export async function toggleChannelTranslations(channelId: string, enabled: bool
     const response = await fetch(url, Client4.getOptions({
         method: 'POST',
         body: JSON.stringify({enabled}),
+    }));
+
+    if (response.ok) {
+        return;
+    }
+
+    throw new ClientError(Client4.url, {
+        message: '',
+        status_code: response.status,
+        url,
+    });
+}
+
+export async function translatePost(postId: string, lang: string) {
+    const url = `${postRoute(postId)}/translate`;
+    const response = await fetch(url, Client4.getOptions({
+        method: 'POST',
+        body: JSON.stringify({lang}),
     }));
 
     if (response.ok) {
