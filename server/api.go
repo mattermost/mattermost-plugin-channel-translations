@@ -33,6 +33,9 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	// Translation language endpoints
 	router.GET("/translation/languages", p.handleGetTranslationLanguages)
 	router.POST("/translation/user_preference", p.handleSetUserTranslationLanguage)
+	
+	// Post translation endpoints
+	router.POST("/post/:postid/translate", p.handleTranslatePost)
 
 	router.ServeHTTP(w, r)
 }
@@ -107,6 +110,45 @@ func (p *Plugin) handleSetUserTranslationLanguage(c *gin.Context) {
 
 func getUserTranslationPreferenceKey(userID string) string {
 	return fmt.Sprintf("user_translation_preference_%s", userID)
+}
+
+type TranslatePostRequest struct {
+	Lang string `json:"lang"`
+}
+
+func (p *Plugin) handleTranslatePost(c *gin.Context) {
+	postID := c.Param("postid")
+	userID := c.GetHeader("Mattermost-User-Id")
+
+	// Parse request body
+	var req TranslatePostRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get the post
+	post, err := p.API.GetPost(postID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get post"})
+		return
+	}
+
+	// Check if user has read permissions for the channel
+	if !p.pluginAPI.User.HasPermissionToChannel(userID, post.ChannelId, model.PermissionReadChannel) {
+		c.AbortWithError(http.StatusForbidden, errors.New("user doesn't have permission to read post"))
+		return
+	}
+
+	// TODO: Implement actual translation logic with a translation service
+	// For now, we'll just return a mock translation
+	translatedText := fmt.Sprintf("[Translated to %s]: %s", req.Lang, post.Message)
+
+	c.JSON(http.StatusOK, gin.H{
+		"translatedText": translatedText,
+		"originalText": post.Message,
+		"targetLanguage": req.Lang,
+	})
 }
 
 func (p *Plugin) handleToggleTranslations(c *gin.Context) {
