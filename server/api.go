@@ -140,9 +140,41 @@ func (p *Plugin) handleTranslatePost(c *gin.Context) {
 		return
 	}
 
-	// TODO: Implement actual translation logic with a translation service
-	// For now, we'll just return a mock translation
-	translatedText := fmt.Sprintf("[Translated to %s]: %s", req.Lang, post.Message)
+	// Skip empty messages
+	if post.Message == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot translate empty message"})
+		return
+	}
+
+	// Translate the text to the requested language
+	translatedText, err := p.translateText(post.Message, userID, req.Lang)
+	if err != nil {
+		p.pluginAPI.Log.Error("Failed to translate post", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to translate post"})
+		return
+	}
+
+	// Store the translation in post props
+	if post.Props == nil {
+		post.Props = make(model.StringInterface)
+	}
+
+	// If translations map doesn't exist yet, create it
+	translations, ok := post.Props["translations"].(map[string]interface{})
+	if !ok {
+		translations = make(map[string]interface{})
+	}
+
+	// Add or update the translation for this language
+	translations[req.Lang] = translatedText
+	post.Props["translations"] = translations
+
+	// Update the post
+	if err := p.pluginAPI.Post.UpdatePost(post); err != nil {
+		p.pluginAPI.Log.Error("Failed to update post with translation", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update post with translation"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"translatedText": translatedText,

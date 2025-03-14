@@ -63,7 +63,7 @@ export async function translatePost(postId: string, lang: string) {
     }));
 
     if (response.ok) {
-        return;
+        return response.json();
     }
 
     throw new ClientError(Client4.url, {
