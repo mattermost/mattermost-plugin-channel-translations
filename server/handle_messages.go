@@ -12,6 +12,12 @@ import (
 	"github.com/mattermost/mattermost/server/public/plugin"
 )
 
+func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, post *model.Post, oldPost *model.Post) {
+	if c.SessionId != "" {
+		p.MessageHasBeenPosted(c, post)
+	}
+}
+
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
 	if !p.getConfiguration().EnableTranslations {
 		return post, ""
@@ -49,11 +55,6 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 
 	// Skip empty messages
 	if post.Message == "" {
-		return
-	}
-
-	// Skip if already translated
-	if _, ok := post.Props["translations"]; ok {
 		return
 	}
 
@@ -115,16 +116,4 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 
 	waitGroup.Wait()
 	close(waitlist)
-
-	// Store translations in post props
-	if post.Props == nil {
-		post.Props = make(model.StringInterface)
-	}
-	post.Props["translations"] = translations
-
-	// Update the post
-	if err := p.pluginAPI.Post.UpdatePost(post); err != nil {
-		p.pluginAPI.Log.Debug("failed to update post with translations", "error", err)
-		return
-	}
 }

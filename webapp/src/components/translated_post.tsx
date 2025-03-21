@@ -27,6 +27,7 @@ interface Props {
 export const TranslatedPost = (props: Props) => {
     const currentUserId = useSelector<GlobalState, string>((state) => state.entities.users.currentUserId);
     const currentUser = useSelector<GlobalState, UserProfile>((state) => state.entities.users.profiles[currentUserId]);
+    const channelNamesMap = props.post?.props?.channel_mentions ? props.post?.props?.channel_mentions : undefined;
 
     let currentUserLocale = 'en'
     if (currentUser) {
@@ -42,7 +43,7 @@ export const TranslatedPost = (props: Props) => {
     if (post.type === "custom_translation") {
         loading = true
     }
-    
+
     const translations = post.props?.translations || {};
     if (translations[currentUserTranslationPreference || currentUserLocale || '']) {
         loading = false
@@ -56,6 +57,7 @@ export const TranslatedPost = (props: Props) => {
                 message={message}
                 channelID={props.post.channel_id}
                 postID={props.post.id}
+                channelNamesMap={channelNamesMap}
             />}
         </PostContainer>
     );

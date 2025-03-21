@@ -21,6 +21,7 @@ interface Props {
     channelID: string;
     postID: string;
     showCursor?: boolean;
+    channelNamesMap?: ChannelNamesMap;
 }
 
 const blinkKeyframes = keyframes`
@@ -71,8 +72,9 @@ const PostText = (props: Props) => {
         atMentions: true,
         team,
         unsafeLinks: true,
-        minimumHashtagLength: 1000000000,
+        minimumHashtagLength: 3,
         siteURL,
+        channelNamesMap: props.channelNamesMap,
     };
 
     const messageHtmlToComponentOptions = {
