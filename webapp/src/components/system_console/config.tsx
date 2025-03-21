@@ -12,6 +12,7 @@ type Config = {
     enableTranslations: boolean
     translationLanguages: string
     translationBotName: string
+    translateSystemMessages: boolean
 }
 
 type Props = {
@@ -44,6 +45,7 @@ const defaultConfig = {
     enableTranslations: false,
     translationLanguages: "",
     translationBotName: "",
+    translateSystemMessages: false,
 };
 
 const BetaMessage = () => (
@@ -106,6 +108,12 @@ const Config = (props: Props) => {
                         value={value.translationBotName}
                         onChange={(e) => props.onChange(props.id, {...value, translationBotName: e.target.value})}
                         helpText={intl.formatMessage({defaultMessage: 'Select which bot will handle message translations.'})}
+                    />
+                    <BooleanItem
+                        label={intl.formatMessage({defaultMessage: 'Translate System Messages'})}
+                        value={value.translateSystemMessages}
+                        onChange={(to) => props.onChange(props.id, {...value, translateSystemMessages: to})}
+                        helpText={intl.formatMessage({defaultMessage: 'Enable translation of system messages. When disabled, only user messages will be translated.'})}
                     />
                 </ItemList>
             </Panel>

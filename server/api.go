@@ -145,6 +145,12 @@ func (p *Plugin) handleTranslatePost(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot translate empty message"})
 		return
 	}
+	
+	// Skip system messages if translateSystemMessages is disabled
+	if isSystemMessage(post) && !p.getConfiguration().TranslateSystemMessages {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "System messages translation is disabled"})
+		return
+	}
 
 	// Translate the text to the requested language
 	translatedText, err := p.translateText(post.Message, userID, req.Lang)

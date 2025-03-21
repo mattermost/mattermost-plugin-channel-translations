@@ -12,6 +12,11 @@ import (
 	"github.com/mattermost/mattermost/server/public/plugin"
 )
 
+// isSystemMessage checks if a post is a system message
+func isSystemMessage(post *model.Post) bool {
+	return post.Type != "" && post.Type != "custom_translation"
+}
+
 func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, post *model.Post, oldPost *model.Post) {
 	if c.SessionId != "" {
 		p.MessageHasBeenPosted(c, post)
@@ -30,6 +35,11 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 
 	// Skip if already translated
 	if _, ok := post.Props["translations"]; ok {
+		return post, ""
+	}
+	
+	// Skip system messages if translateSystemMessages is disabled
+	if isSystemMessage(post) && !p.getConfiguration().TranslateSystemMessages {
 		return post, ""
 	}
 
@@ -55,6 +65,11 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 
 	// Skip empty messages
 	if post.Message == "" {
+		return
+	}
+	
+	// Skip system messages if translateSystemMessages is disabled
+	if isSystemMessage(post) && !p.getConfiguration().TranslateSystemMessages {
 		return
 	}
 
