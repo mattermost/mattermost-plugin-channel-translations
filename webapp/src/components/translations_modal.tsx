@@ -51,7 +51,7 @@ const TranslationsModal: React.FC<TranslationsModalProps> = ({show, onHide, post
                     <TranslationLanguage>
                         <FormattedMessage defaultMessage="Original" />
                     </TranslationLanguage>
-                    <TranslationText>{post.message_source}</TranslationText>
+                    <TranslationText>{post.message}</TranslationText>
                 </TranslationItem>
 
                 {Object.entries(translations || {}).map(([lang, text]) => (
