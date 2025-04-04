@@ -73,10 +73,7 @@ func (p *Plugin) OnActivate() error {
 }
 
 func (p *Plugin) translateText(message, requestorID, lang string) (string, error) {
-	client, err := interpluginclient.NewClient(&p.MattermostPlugin)
-	if err != nil {
-		return "", err
-	}
+	client := interpluginclient.NewClient(&p.MattermostPlugin)
 
 	promptParameters := map[string]any{
 		"Message":  message,
@@ -124,7 +121,7 @@ Esto es una pregunta, no una crítica, especialmente porque el binario se ejecut
 </text-to-translate>
 
 Target language: {{.Parameters.Language}}`
-	request := interpluginclient.CompletionRequest{
+	request := interpluginclient.SimpleCompletionRequest{
 		SystemPrompt:    systemPrompt,
 		UserPrompt:      userPrompt,
 		BotUsername:     p.getConfiguration().Config.TranslationBotName,
@@ -135,7 +132,7 @@ Target language: {{.Parameters.Language}}`
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	result, err := client.CompletionWithContext(ctx, request)
+	result, err := client.SimpleCompletionWithContext(ctx, request)
 	if err != nil {
 		return "", err
 	}
