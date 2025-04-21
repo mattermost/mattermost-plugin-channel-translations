@@ -1,1 +1,62 @@
-{}
+{
+  "+aWh2W": {
+    "defaultMessage": "Enable automatic message translations in channels using AI."
+  },
+  "7OW8BT": {
+    "defaultMessage": "Configuration"
+  },
+  "E4E4f5": {
+    "defaultMessage": "Enable translation of system messages. When disabled, only user messages will be translated."
+  },
+  "I9EuNd": {
+    "defaultMessage": "Translation Languages"
+  },
+  "NFIpwc": {
+    "defaultMessage": "Disable Translations"
+  },
+  "RZi7Gi": {
+    "defaultMessage": "Translation Bot"
+  },
+  "Xr2Ki0": {
+    "defaultMessage": "Select which bot will handle message translations."
+  },
+  "Zs/vXT": {
+    "defaultMessage": "To report a bug or to provide feedback, <link>create a new issue in the plugin repository</link>."
+  },
+  "aFyu8N": {
+    "defaultMessage": "Translations"
+  },
+  "cZ+mfu": {
+    "defaultMessage": "false"
+  },
+  "generic_icons.loading": {
+    "defaultMessage": "Loading Icon"
+  },
+  "he9IcT": {
+    "defaultMessage": "Original"
+  },
+  "j0XNAq": {
+    "defaultMessage": "Translate again"
+  },
+  "jSA8SW": {
+    "defaultMessage": "Translate System Messages"
+  },
+  "kSDNX6": {
+    "defaultMessage": "true"
+  },
+  "pr7C1p": {
+    "defaultMessage": "Enable Translations"
+  },
+  "pyMiKZ": {
+    "defaultMessage": "View translations"
+  },
+  "rEMl/m": {
+    "defaultMessage": "Comma-separated list of language codes to translate messages to (e.g. \"en,es,fr\"). Default is \"en\"."
+  },
+  "tUlsq+": {
+    "defaultMessage": "Translating"
+  },
+  "yEsRQA": {
+    "defaultMessage": "Enable Channel Translations"
+  }
+}

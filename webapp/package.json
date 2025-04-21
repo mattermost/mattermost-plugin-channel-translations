@@ -10,7 +10,7 @@
     "test": "echo ''",
     "test:watch": "echo ''",
     "test-ci": "echo ''",
-    "i18n-extract": "formatjs extract",
+    "i18n-extract": "formatjs extract 'src/**/*.tsx' --out-file i18n/en.json --id-interpolation-pattern '[sha512:contenthash:base64:6]'",
     "check-types": "tsc"
   },
   "devDependencies": {

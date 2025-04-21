@@ -18,7 +18,6 @@ import manifest from '@/manifest';
 import Config from './components/system_console/config';
 import {getChannelTranslationStatus, toggleChannelTranslations, translatePost} from './client';
 import TranslationLanguageSetting from './components/user_settings/translation_language';
-import PostEventListener from './websocket';
 import {setupRedux} from './redux';
 import {doOpenTranslationsModal, useOpenTranslationsModal} from './hooks';
 import { TranslatedPost } from './components/translated_post';
@@ -30,8 +29,6 @@ type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>
 
 
 export default class Plugin {
-    postEventListener: PostEventListener = new PostEventListener();
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
     public async initialize(registry: any, store: WebappStore) {
         setupRedux(registry, store);
