@@ -4,6 +4,13 @@
 import {GlobalState} from '@mattermost/types/store';
 import {getTranslationsModalPost} from './selectors';
 
+// Mock the manifest import
+jest.mock('./manifest', () => ({
+    default: {
+        id: 'mattermost-channel-translation'
+    }
+}));
+
 describe('selectors', () => {
     describe('getTranslationsModalPost', () => {
         test('should return translationsModal from plugin state', () => {

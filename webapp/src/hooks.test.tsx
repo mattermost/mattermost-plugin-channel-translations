@@ -2,7 +2,6 @@
 // See LICENSE.txt for license information.
 
 import {doOpenTranslationsModal} from './hooks';
-import {renderHook} from '@testing-library/react-hooks';
 import {useOpenTranslationsModal} from './hooks';
 import * as reactRedux from 'react-redux';
 
@@ -36,10 +35,9 @@ describe('hooks', () => {
             jest.spyOn(reactRedux, 'useDispatch').mockReturnValue(mockDispatch);
             
             // Act
-            const {result} = renderHook(() => useOpenTranslationsModal());
-            const openModal = result.current;
+            const hook = useOpenTranslationsModal();
             const mockPost = { id: 'post1', message: 'Test message' };
-            openModal(mockPost);
+            hook(mockPost);
             
             // Assert
             expect(mockDispatch).toHaveBeenCalledWith({
