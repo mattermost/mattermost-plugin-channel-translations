@@ -16,9 +16,7 @@ type LicenseChecker struct {
 }
 
 func NewLicenseChecker(pluginAPIClient *pluginapi.Client) *LicenseChecker {
-	return &LicenseChecker{
-		pluginAPIClient,
-	}
+	return &LicenseChecker{pluginAPIClient}
 }
 
 // isAtLeastE20Licensed returns true when the server either has an E20 license or is configured for development.

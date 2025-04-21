@@ -14,27 +14,28 @@ import (
 	"github.com/mattermost/mattermost/server/public/plugin"
 )
 
-const (
-	ContextPostKey    = "post"
-	ContextChannelKey = "channel"
-	ContextBotKey     = "bot"
-)
+type TranslationLanguagesResponse struct {
+	Languages      []string `json:"languages"`
+	UserPreference string   `json:"userPreference"`
+}
+
+type SetTranslationLanguageRequest struct {
+	Language string `json:"language"`
+}
+
+type TranslatePostRequest struct {
+	Lang string `json:"lang"`
+}
 
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	router := gin.Default()
 	router.Use(p.ginlogger)
 	router.Use(p.MattermostAuthorizationRequired)
 
-	// Translations endpoints don't require bot authorization
-	translationsRouter := router.Group("/channel/:channelid")
-	translationsRouter.POST("/translations", p.handleToggleTranslations)
-	translationsRouter.GET("/translations", p.handleGetTranslationStatus)
-
-	// Translation language endpoints
+	router.POST("/channel/:channelid/translations", p.handleSetChannelTranslations)
+	router.GET("/channel/:channelid/translations", p.handleGetChannelTranslationStatus)
 	router.GET("/translation/languages", p.handleGetTranslationLanguages)
 	router.POST("/translation/user_preference", p.handleSetUserTranslationLanguage)
-
-	// Post translation endpoints
 	router.POST("/post/:postid/translate", p.handleTranslatePost)
 
 	router.ServeHTTP(w, r)
@@ -56,38 +57,25 @@ func (p *Plugin) MattermostAuthorizationRequired(c *gin.Context) {
 	}
 }
 
-// Translation Language Preferences API
-type TranslationLanguagesResponse struct {
-	Languages      []string `json:"languages"`
-	UserPreference string   `json:"userPreference"`
+func getUserTranslationPreferenceKey(userID string) string {
+	return fmt.Sprintf("user_translation_preference_%s", userID)
 }
 
 func (p *Plugin) handleGetTranslationLanguages(c *gin.Context) {
 	userID := c.GetHeader("Mattermost-User-Id")
-
-	// Get configured languages from the plugin config
 	configuredLanguages := []string{}
 	if p.getConfiguration().TranslationLanguages != "" {
 		configuredLanguages = strings.Split(p.getConfiguration().TranslationLanguages, ",")
-		// Trim any whitespace
 		for i, lang := range configuredLanguages {
 			configuredLanguages[i] = strings.TrimSpace(lang)
 		}
 	}
-
-	// Get user's preference
 	preference, _ := p.API.KVGet(getUserTranslationPreferenceKey(userID))
-
 	response := TranslationLanguagesResponse{
 		Languages:      configuredLanguages,
 		UserPreference: string(preference),
 	}
-
 	c.JSON(http.StatusOK, response)
-}
-
-type SetTranslationLanguageRequest struct {
-	Language string `json:"language"`
 }
 
 func (p *Plugin) handleSetUserTranslationLanguage(c *gin.Context) {
@@ -99,7 +87,6 @@ func (p *Plugin) handleSetUserTranslationLanguage(c *gin.Context) {
 		return
 	}
 
-	// Save user preference
 	if err := p.API.KVSet(getUserTranslationPreferenceKey(userID), []byte(req.Language)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save preference"})
 		return
@@ -108,51 +95,37 @@ func (p *Plugin) handleSetUserTranslationLanguage(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
-func getUserTranslationPreferenceKey(userID string) string {
-	return fmt.Sprintf("user_translation_preference_%s", userID)
-}
-
-type TranslatePostRequest struct {
-	Lang string `json:"lang"`
-}
-
 func (p *Plugin) handleTranslatePost(c *gin.Context) {
 	postID := c.Param("postid")
 	userID := c.GetHeader("Mattermost-User-Id")
 
-	// Parse request body
 	var req TranslatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Get the post
 	post, err := p.pluginAPI.Post.GetPost(postID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get post"})
 		return
 	}
 
-	// Check if user has read permissions for the channel
 	if !p.pluginAPI.User.HasPermissionToChannel(userID, post.ChannelId, model.PermissionReadChannel) {
 		c.AbortWithError(http.StatusForbidden, errors.New("user doesn't have permission to read post"))
 		return
 	}
 
-	// Skip empty messages
 	if post.Message == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot translate empty message"})
 		return
 	}
-	
-	// Skip system messages if translateSystemMessages is disabled
+
 	if isSystemMessage(post) && !p.getConfiguration().TranslateSystemMessages {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "System messages translation is disabled"})
 		return
 	}
 
-	// Translate the text to the requested language
 	translatedText, err := p.translateText(post.Message, userID, req.Lang)
 	if err != nil {
 		p.pluginAPI.Log.Error("Failed to translate post", "error", err)
@@ -160,22 +133,18 @@ func (p *Plugin) handleTranslatePost(c *gin.Context) {
 		return
 	}
 
-	// Store the translation in post props
 	if post.Props == nil {
 		post.Props = make(model.StringInterface)
 	}
 
-	// If translations map doesn't exist yet, create it
 	translations, ok := post.Props["translations"].(map[string]interface{})
 	if !ok {
 		translations = make(map[string]interface{})
 	}
 
-	// Add or update the translation for this language
 	translations[req.Lang] = translatedText
 	post.Props["translations"] = translations
 
-	// Update the post
 	if err := p.pluginAPI.Post.UpdatePost(post); err != nil {
 		p.pluginAPI.Log.Error("Failed to update post with translation", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update post with translation"})
@@ -189,18 +158,16 @@ func (p *Plugin) handleTranslatePost(c *gin.Context) {
 	})
 }
 
-func (p *Plugin) handleToggleTranslations(c *gin.Context) {
+func (p *Plugin) handleSetChannelTranslations(c *gin.Context) {
 	channelID := c.Param("channelid")
 	userID := c.GetHeader("Mattermost-User-Id")
 
-	// Get channel to check its type
 	channel, err := p.pluginAPI.Channel.Get(channelID)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	// Check if user has admin permissions based on channel type
 	hasPermission := false
 	if channel.Type == model.ChannelTypePrivate {
 		hasPermission = p.pluginAPI.User.HasPermissionToChannel(userID, channelID, model.PermissionManagePrivateChannelProperties)
@@ -232,7 +199,7 @@ func (p *Plugin) handleToggleTranslations(c *gin.Context) {
 	})
 }
 
-func (p *Plugin) handleGetTranslationStatus(c *gin.Context) {
+func (p *Plugin) handleGetChannelTranslationStatus(c *gin.Context) {
 	channelID := c.Param("channelid")
 	userID := c.GetHeader("Mattermost-User-Id")
 

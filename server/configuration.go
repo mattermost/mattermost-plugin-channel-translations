@@ -9,10 +9,10 @@ import (
 )
 
 type Config struct {
-	TranslationBotName       string `json:"translationBotName"`
-	EnableTranslations       bool   `json:"enableTranslations"`
-	TranslationLanguages     string `json:"translationLanguages"`
-	TranslateSystemMessages  bool   `json:"translateSystemMessages"`
+	TranslationBotName      string `json:"translationBotName"`
+	EnableTranslations      bool   `json:"enableTranslations"`
+	TranslationLanguages    string `json:"translationLanguages"`
+	TranslateSystemMessages bool   `json:"translateSystemMessages"`
 }
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server

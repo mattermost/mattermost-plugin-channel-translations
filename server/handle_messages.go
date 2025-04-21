@@ -4,7 +4,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"sync"
 
@@ -18,6 +17,7 @@ func isSystemMessage(post *model.Post) bool {
 }
 
 func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, post *model.Post, oldPost *model.Post) {
+	// Only update the translation if the update is made by a user (not a plugin or bot)
 	if c.SessionId != "" {
 		p.MessageHasBeenPosted(c, post)
 	}
@@ -37,7 +37,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	if _, ok := post.Props["translations"]; ok {
 		return post, ""
 	}
-	
+
 	// Skip system messages if translateSystemMessages is disabled
 	if isSystemMessage(post) && !p.getConfiguration().TranslateSystemMessages {
 		return post, ""
@@ -45,10 +45,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 
 	// Check if translations are enabled for this channel
 	enabled, err := p.isChannelTranslationEnabled(post.ChannelId)
-	if err != nil {
-		return post, ""
-	}
-	if !enabled {
+	if err != nil || !enabled {
 		return post, ""
 	}
 
@@ -67,7 +64,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	if post.Message == "" {
 		return
 	}
-	
+
 	// Skip system messages if translateSystemMessages is disabled
 	if isSystemMessage(post) && !p.getConfiguration().TranslateSystemMessages {
 		return
@@ -75,11 +72,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 
 	// Check if translations are enabled for this channel
 	enabled, err := p.isChannelTranslationEnabled(post.ChannelId)
-	if err != nil {
-		p.pluginAPI.Log.Debug("failed to check channel translation status", "error", err)
-		return
-	}
-	if !enabled {
+	if err != nil || !enabled {
 		return
 	}
 
@@ -104,15 +97,12 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 			for {
 				result, err := p.translateText(post.Message, post.UserId, lang)
 				if err != nil {
-					p.pluginAPI.Log.Warn(fmt.Sprintf("failed to get translations: %w", err))
 					maxRetry--
 					if maxRetry == 0 {
 						break
 					}
 					continue
 				}
-
-				p.pluginAPI.Log.Debug("Extracted translation raw", "translation", result, "language", lang)
 
 				mutex.Lock()
 				translations[lang] = result
