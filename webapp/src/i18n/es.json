@@ -1,1 +1,22 @@
-{}
+{
+  "+aWh2W7g": "Habilitar traducciones automáticas de mensajes en canales usando IA.",
+  "2SMWyZOV": "Icono de carga",
+  "7OW8BTDz": "Configuración",
+  "E4E4f5GD": "Habilitar traducción de mensajes del sistema. Cuando está desactivado, solo se traducirán los mensajes de usuarios.",
+  "I9EuNd9t": "Idiomas de traducción",
+  "NFIpwc8t": "Desactivar traducciones",
+  "RZi7GiKS": "Bot de traducción",
+  "Xr2Ki05E": "Seleccione qué bot manejará las traducciones de mensajes.",
+  "Zs/vXTiU": "Para reportar un error o proporcionar comentarios, <link>cree un nuevo problema en el repositorio del plugin</link>.",
+  "aFyu8NW+": "Traducciones",
+  "cZ+mfu9J": "falso",
+  "he9IcTWm": "Original",
+  "j0XNAq6U": "Traducir de nuevo",
+  "jSA8SW0E": "Traducir mensajes del sistema",
+  "kSDNX67w": "verdadero",
+  "pr7C1pxa": "Habilitar traducciones",
+  "pyMiKZHR": "Ver traducciones",
+  "rEMl/mgL": "Lista separada por comas de códigos de idioma para traducir mensajes (por ejemplo, \"en,es,fr\"). El valor predeterminado es \"en\".",
+  "tUlsq+bS": "Traduciendo",
+  "yEsRQAZh": "Habilitar traducciones de canal"
+}
