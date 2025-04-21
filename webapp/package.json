@@ -10,7 +10,7 @@
     "test": "echo ''",
     "test:watch": "echo ''",
     "test-ci": "echo ''",
-    "i18n-extract": "formatjs extract 'src/**/*.tsx' --out-file src/i18n/en.json --format simple",
+    "i18n-extract": "formatjs extract",
     "check-types": "tsc"
   },
   "devDependencies": {
