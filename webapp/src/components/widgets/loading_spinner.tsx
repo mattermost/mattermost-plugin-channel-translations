@@ -16,7 +16,7 @@ const LoadingSpinner = () => {
         >
             <span
                 className='fa fa-spinner fa-fw fa-pulse spinner'
-                title={formatMessage({id: 'generic_icons.loading', defaultMessage: 'Loading Icon'})}
+                title={formatMessage({defaultMessage: 'Loading Icon'})}
             />
         </span>
     );
