@@ -5,7 +5,7 @@ import React, {useEffect} from 'react';
 import styled from 'styled-components';
 import {FormattedMessage, useIntl} from 'react-intl';
 
-import Panel  from './panel';
+import Panel from './panel';
 import {BooleanItem, ItemList, SelectionItem, SelectionItemOption, TextItem} from './item';
 
 type Config = {
@@ -43,8 +43,8 @@ const ConfigContainer = styled.div`
 
 const defaultConfig = {
     enableTranslations: false,
-    translationLanguages: "",
-    translationBotName: "",
+    translationLanguages: '',
+    translationBotName: '',
     translateSystemMessages: false,
 };
 

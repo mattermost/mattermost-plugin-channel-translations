@@ -8,7 +8,7 @@ type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>
 
 export function translationsModal(state = false, action: {type: string, post: any}) {
     switch (action.type) {
-    case "OPEN_TRANSLATIONS_MODAL":
+    case 'OPEN_TRANSLATIONS_MODAL':
         return action.post || false;
     default:
         return state;
@@ -17,7 +17,7 @@ export function translationsModal(state = false, action: {type: string, post: an
 
 export async function setupRedux(registry: any, store: WebappStore) {
     const reducer = combineReducers({
-      translationsModal,
+        translationsModal,
     });
     registry.registerReducer(reducer);
 }

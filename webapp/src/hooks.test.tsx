@@ -1,9 +1,10 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
+import * as reactRedux from 'react-redux';
+
 import {doOpenTranslationsModal} from './hooks';
 import {useOpenTranslationsModal} from './hooks';
-import * as reactRedux from 'react-redux';
 
 jest.mock('react-redux', () => ({
     ...jest.requireActual('react-redux'),
@@ -15,7 +16,7 @@ describe('hooks', () => {
         test('should dispatch OPEN_TRANSLATIONS_MODAL action with post', () => {
             // Arrange
             const mockDispatch = jest.fn();
-            const mockPost = { id: 'post1', message: 'Test message' };
+            const mockPost = {id: 'post1', message: 'Test message'};
 
             // Act
             doOpenTranslationsModal(mockPost, mockDispatch);
@@ -33,12 +34,12 @@ describe('hooks', () => {
             // Arrange
             const mockDispatch = jest.fn();
             jest.spyOn(reactRedux, 'useDispatch').mockReturnValue(mockDispatch);
-            
+
             // Act
             const hook = useOpenTranslationsModal();
-            const mockPost = { id: 'post1', message: 'Test message' };
+            const mockPost = {id: 'post1', message: 'Test message'};
             hook(mockPost);
-            
+
             // Assert
             expect(mockDispatch).toHaveBeenCalledWith({
                 type: 'OPEN_TRANSLATIONS_MODAL',

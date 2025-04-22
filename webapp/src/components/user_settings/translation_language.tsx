@@ -4,26 +4,27 @@
 import React, {useState, useEffect} from 'react';
 import {useSelector} from 'react-redux';
 import {FormattedMessage} from 'react-intl';
-import {getTranslationLanguages} from '@/client'
 
 import type {PluginCustomSettingComponent} from '@mattermost/types/plugins/user_settings';
+
+import {getTranslationLanguages} from '@/client';
 
 const TranslationLanguageSetting: PluginCustomSettingComponent = ({informChange}) => {
     const [languages, setLanguages] = useState<string[]>([]);
     const [selectedLanguage, setSelectedLanguage] = useState<string>('');
     const userPreferences = useSelector((state: any) => state.entities.preferences.myPreferences);
-    const currentUserTranslationPreference = (userPreferences["pp_mattermost-channel-translatio--translation_language"] || {}).value || 'en'
+    const currentUserTranslationPreference = (userPreferences['pp_mattermost-channel-translatio--translation_language'] || {}).value || 'en';
 
     useEffect(() => {
-      setSelectedLanguage(currentUserTranslationPreference);
-      getTranslationLanguages().then((data) => {
-          if (data && data.languages) {
-              setLanguages(data.languages);
-          }
-      })
-      .catch((error) => {
-          console.error('Error fetching translation languages:', error);
-      });
+        setSelectedLanguage(currentUserTranslationPreference);
+        getTranslationLanguages().then((data) => {
+            if (data && data.languages) {
+                setLanguages(data.languages);
+            }
+        }).
+            catch((error) => {
+                console.error('Error fetching translation languages:', error);
+            });
     }, []);
 
     const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -31,7 +32,6 @@ const TranslationLanguageSetting: PluginCustomSettingComponent = ({informChange}
         setSelectedLanguage(language);
         informChange('translation_language', language);
     };
-
 
     return (
         <div className='form-group'>
@@ -42,7 +42,10 @@ const TranslationLanguageSetting: PluginCustomSettingComponent = ({informChange}
             >
                 <option value=''>Default (Auto)</option>
                 {languages.map((lang) => (
-                    <option key={lang} value={lang}>
+                    <option
+                        key={lang}
+                        value={lang}
+                    >
                         {lang}
                     </option>
                 ))}
