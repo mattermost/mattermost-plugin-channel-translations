@@ -3,8 +3,7 @@
 
 import * as reactRedux from 'react-redux';
 
-import {doOpenTranslationsModal} from './hooks';
-import {useOpenTranslationsModal} from './hooks';
+import {doOpenTranslationsModal, useOpenTranslationsModal} from './hooks';
 
 jest.mock('react-redux', () => ({
     ...jest.requireActual('react-redux'),

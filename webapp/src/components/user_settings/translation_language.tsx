@@ -3,7 +3,6 @@
 
 import React, {useState, useEffect} from 'react';
 import {useSelector} from 'react-redux';
-import {FormattedMessage} from 'react-intl';
 
 import type {PluginCustomSettingComponent} from '@mattermost/types/plugins/user_settings';
 
@@ -23,7 +22,7 @@ const TranslationLanguageSetting: PluginCustomSettingComponent = ({informChange}
             }
         }).
             catch((error) => {
-                console.error('Error fetching translation languages:', error);
+                // Silent error, will just use default languages
             });
     }, []);
 
@@ -40,7 +39,7 @@ const TranslationLanguageSetting: PluginCustomSettingComponent = ({informChange}
                 value={selectedLanguage}
                 onChange={handleLanguageChange}
             >
-                <option value=''>Default (Auto)</option>
+                <option value=''>{'Default (Auto)'}</option>
                 {languages.map((lang) => (
                     <option
                         key={lang}

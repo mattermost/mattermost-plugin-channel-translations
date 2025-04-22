@@ -122,7 +122,7 @@ export default class Plugin {
                     // Force menu to re-render with updated text
                     window.postMessage({type: 'UPDATE_CHANNEL_HEADER_MENU'}, window.origin);
                 } catch (e) {
-                    console.error('Failed to toggle translations:', e);
+                    // Silently fail - the UI will stay in the current state
                 }
             },
         );

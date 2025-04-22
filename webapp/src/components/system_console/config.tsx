@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import {FormattedMessage, useIntl} from 'react-intl';
 
 import Panel from './panel';
-import {BooleanItem, ItemList, SelectionItem, SelectionItemOption, TextItem} from './item';
+import {BooleanItem, ItemList, TextItem} from './item';
 
 type Config = {
     enableTranslations: boolean

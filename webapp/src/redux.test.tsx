@@ -1,8 +1,6 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {createStore} from 'redux';
-
 import {setupRedux, translationsModal} from './redux';
 
 describe('redux', () => {
@@ -38,7 +36,7 @@ describe('redux', () => {
             await setupRedux(mockRegistry, mockStore);
 
             // Test directly with the reducer
-            const initialState = translationsModal(undefined, {type: '', post: null});
+            const initialState = translationsModal(false, {type: '', post: null});
             expect(initialState).toBe(false);
 
             // Dispatch unknown action

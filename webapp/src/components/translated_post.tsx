@@ -1,7 +1,7 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useState} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {useSelector} from 'react-redux';
 import {FormattedMessage} from 'react-intl';
@@ -49,18 +49,20 @@ export const TranslatedPost = (props: Props) => {
     const translations = post.props?.translations || {};
     if (translations[currentUserTranslationPreference || currentUserLocale || '']) {
         loading = false;
-        message = translations[currentUserTranslationPreference || currentUserLocale];
+        message = translations[currentUserTranslationPreference || currentUserLocale || ''];
     }
 
     return (
         <PostContainer>
             {loading && <Loading><LoadingSpinner/><FormattedMessage defaultMessage='Translating'/></Loading>}
-            {!loading && <PostText
-                message={message}
-                channelID={props.post.channel_id}
-                postID={props.post.id}
-                channelNamesMap={channelNamesMap}
-            />}
+            {!loading && (
+                <PostText
+                    message={message}
+                    channelID={props.post.channel_id}
+                    postID={props.post.id}
+                    channelNamesMap={channelNamesMap}
+                />
+            )}
         </PostContainer>
     );
 };
