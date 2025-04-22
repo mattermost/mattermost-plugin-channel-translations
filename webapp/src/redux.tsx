@@ -15,7 +15,7 @@ export function translationsModal(state = false, action: {type: string, post: an
     }
 }
 
-export async function setupRedux(registry: any, _store: WebappStore) {
+export async function setupRedux(registry: any, _: WebappStore) {
     const reducer = combineReducers({
         translationsModal,
     });
