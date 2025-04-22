@@ -13,16 +13,10 @@ describe('PostText', () => {
     const channel = {id: 'channel1', team_id: 'team1'};
     const team = {id: 'team1', name: 'testteam'};
     
-    // Mock window.PostUtils
-    beforeAll(() => {
-        window.PostUtils = {
-            formatText: jest.fn().mockReturnValue('formatted text'),
-            messageHtmlToComponent: jest.fn().mockImplementation((text) => <div>{text}</div>),
-        };
-    });
-
     beforeEach(() => {
         jest.clearAllMocks();
+        window.PostUtils.formatText.mockReturnValue('formatted text');
+        window.PostUtils.messageHtmlToComponent.mockImplementation((text) => <div>{text}</div>);
     });
 
     test('renders message correctly', () => {

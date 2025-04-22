@@ -1,0 +1,10 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
+import '@testing-library/jest-dom';
+
+// Mock PostUtils global
+window.PostUtils = {
+    formatText: jest.fn().mockReturnValue('formatted text'),
+    messageHtmlToComponent: jest.fn().mockImplementation((text) => <div>{text}</div>),
+};
