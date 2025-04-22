@@ -59,7 +59,7 @@ export async function getChannelTranslationStatus(channelId: string) {
 
 export async function toggleChannelTranslations(channelId: string, enabled: boolean) {
     const url = `${channelRoute(channelId)}/translations`;
-    return doPost(url, {enabled})
+    return doPost(url, {enabled});
 }
 
 export async function translatePost(postId: string, lang: string) {

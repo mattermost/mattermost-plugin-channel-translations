@@ -2,15 +2,16 @@
 // See LICENSE.txt for license information.
 
 import {GlobalState} from '@mattermost/types/store';
+
 import {getTranslationsModalPost} from './selectors';
 
 describe('selectors', () => {
     describe('getTranslationsModalPost', () => {
         test('should return translationsModal from plugin state', () => {
             // Arrange
-            const translationsModal = { id: 'post1', message: 'Test message' };
+            const translationsModal = {id: 'post1', message: 'Test message'};
             const state = {
-                ['plugins-mattermost-channel-translations']: {
+                'plugins-mattermost-channel-translations': {
                     translationsModal,
                 },
             } as unknown as GlobalState;

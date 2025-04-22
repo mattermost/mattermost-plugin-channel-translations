@@ -34,22 +34,22 @@ interface TranslationsModalProps {
 }
 
 const TranslationsModal: React.FC<TranslationsModalProps> = ({show, onHide, post}) => {
-    const translations = post.props?.translations || {}
+    const translations = post.props?.translations || {};
     return (
         <Modal
             show={show}
             onHide={onHide}
-            aria-labelledby="translations-modal-title"
+            aria-labelledby='translations-modal-title'
         >
-            <Modal.Header closeButton>
-                <Modal.Title id="translations-modal-title">
-                    <FormattedMessage defaultMessage="Translations" />
+            <Modal.Header closeButton={true}>
+                <Modal.Title id='translations-modal-title'>
+                    <FormattedMessage defaultMessage='Translations'/>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <TranslationItem>
                     <TranslationLanguage>
-                        <FormattedMessage defaultMessage="Original" />
+                        <FormattedMessage defaultMessage='Original'/>
                     </TranslationLanguage>
                     <TranslationText>{post.message}</TranslationText>
                 </TranslationItem>

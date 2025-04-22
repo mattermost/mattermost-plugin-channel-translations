@@ -1,10 +1,7 @@
 // Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {combineReducers, Store, Action} from 'redux';
-import {GlobalState} from '@mattermost/types/store';
-
-type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>
+import {combineReducers} from 'redux';
 
 export function translationsModal(state = false, action: {type: string, post: any}) {
     switch (action.type) {
@@ -15,7 +12,7 @@ export function translationsModal(state = false, action: {type: string, post: an
     }
 }
 
-export async function setupRedux(registry: any, _: WebappStore) {
+export async function setupRedux(registry: any) {
     const reducer = combineReducers({
         translationsModal,
     });

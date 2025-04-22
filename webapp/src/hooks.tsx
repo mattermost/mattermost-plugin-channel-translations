@@ -6,7 +6,7 @@ import {useDispatch} from 'react-redux';
 const openTranslationsModal = (post: string) => {
     return {
         type: 'OPEN_TRANSLATIONS_MODAL',
-        post: post,
+        post,
     };
 };
 
@@ -14,7 +14,7 @@ export const doOpenTranslationsModal = (post: any, dispatch: any) => {
     dispatch(openTranslationsModal(post));
 };
 
-export const useOpenTranslationsModal= () => {
+export const useOpenTranslationsModal = () => {
     const dispatch = useDispatch();
 
     return (post: any) => {

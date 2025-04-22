@@ -29,7 +29,7 @@ interface Props {
 export const TranslatedPost = (props: Props) => {
     const currentUserId = useSelector<GlobalState, string>((state) => state.entities.users.currentUserId);
     const currentUser = useSelector<GlobalState, UserProfile>((state) => state.entities.users.profiles[currentUserId]);
-    const channelNamesMap = props.post?.props?.channel_mentions ? props.post?.props?.channel_mentions : undefined;
+    const channelNamesMap = props.post?.props?.channel_mentions ? props.post?.props?.channel_mentions : {};
 
     let currentUserLocale = 'en';
     if (currentUser) {

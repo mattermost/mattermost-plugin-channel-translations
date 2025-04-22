@@ -6,7 +6,7 @@ import {
     toggleChannelTranslations,
     translatePost,
     getTranslationLanguages,
-    setUserTranslationLanguage
+    setUserTranslationLanguage,
 } from './client';
 import manifest from './manifest';
 
@@ -16,6 +16,7 @@ global.fetch = jest.fn();
 describe('client', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+
         // Mock successful fetch response
         (global.fetch as jest.Mock).mockResolvedValue({
             ok: true,
@@ -37,7 +38,7 @@ describe('client', () => {
                 expectedUrl,
                 expect.objectContaining({
                     method: 'GET',
-                })
+                }),
             );
         });
     });
@@ -58,7 +59,7 @@ describe('client', () => {
                 expect.objectContaining({
                     method: 'POST',
                     body: JSON.stringify({enabled}),
-                })
+                }),
             );
         });
     });
@@ -79,7 +80,7 @@ describe('client', () => {
                 expect.objectContaining({
                     method: 'POST',
                     body: JSON.stringify({lang}),
-                })
+                }),
             );
         });
     });
@@ -97,7 +98,7 @@ describe('client', () => {
                 expectedUrl,
                 expect.objectContaining({
                     method: 'GET',
-                })
+                }),
             );
         });
     });
@@ -117,7 +118,7 @@ describe('client', () => {
                 expect.objectContaining({
                     method: 'POST',
                     body: JSON.stringify({language}),
-                })
+                }),
             );
         });
     });
