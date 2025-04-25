@@ -47,7 +47,7 @@ describe('Config', () => {
         expect(screen.getByText('Translation Languages')).toBeInTheDocument();
         expect(screen.getByText('Translation Bot')).toBeInTheDocument();
         expect(screen.getByText('Translate System Messages')).toBeInTheDocument();
-        
+
         // Check input values are set correctly
         expect(screen.getByDisplayValue('en,es,fr')).toBeInTheDocument();
         expect(screen.getByDisplayValue('TranslateBot')).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe('Config', () => {
     test('calls onChange when Enable Channel Translations is changed', () => {
         // Act
         renderWithIntl(<Config {...defaultProps} />);
-        
+
         // Find the "true" radio button (the first one) and click it
         const radioButtons = screen.getAllByRole('radio');
         fireEvent.click(radioButtons[0]);
@@ -86,7 +86,7 @@ describe('Config', () => {
     test('calls onChange when Translation Languages is changed', () => {
         // Act
         renderWithIntl(<Config {...defaultProps} />);
-        
+
         // Find the input field and change its value
         const input = screen.getByDisplayValue('en,es,fr');
         fireEvent.change(input, { target: { value: 'en,de,fr' } });
@@ -104,7 +104,7 @@ describe('Config', () => {
     test('calls onChange when Translation Bot is changed', () => {
         // Act
         renderWithIntl(<Config {...defaultProps} />);
-        
+
         // Find the input field and change its value
         const input = screen.getByDisplayValue('TranslateBot');
         fireEvent.change(input, { target: { value: 'NewBot' } });
@@ -122,7 +122,7 @@ describe('Config', () => {
     test('calls onChange when Translate System Messages is changed', () => {
         // Act
         renderWithIntl(<Config {...defaultProps} />);
-        
+
         // Find the "true" radio button for system messages (would be the third radio button)
         const radioButtons = screen.getAllByRole('radio');
         fireEvent.click(radioButtons[2]);
@@ -140,13 +140,13 @@ describe('Config', () => {
     test('registers save action on mount and unregisters on unmount', () => {
         // Act
         const { unmount } = renderWithIntl(<Config {...defaultProps} />);
-        
+
         // Assert - registerSaveAction should be called on mount
         expect(defaultProps.registerSaveAction).toHaveBeenCalled();
-        
+
         // Act - unmount the component
         unmount();
-        
+
         // Assert - unRegisterSaveAction should be called on unmount
         expect(defaultProps.unRegisterSaveAction).toHaveBeenCalled();
     });
@@ -159,7 +159,11 @@ describe('Config', () => {
         };
 
         // Act
-        renderWithIntl(<Config {...propsWithoutValue} />);
+        render(
+            <IntlProvider locale="en">
+                <Config {...propsWithoutValue} />
+            </IntlProvider>
+        );
 
         // Assert - should not crash and render with default values
         expect(screen.getByText('Configuration')).toBeInTheDocument();
