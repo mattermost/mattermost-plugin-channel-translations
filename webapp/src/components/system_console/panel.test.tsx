@@ -2,9 +2,9 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import {render, screen} from '@testing-library/react';
 
-import Panel, { PanelContainer, PanelFooterText } from './panel';
+import Panel, {PanelContainer, PanelFooterText} from './panel';
 
 describe('Panel', () => {
     test('renders with title and subtitle', () => {
@@ -15,9 +15,12 @@ describe('Panel', () => {
 
         // Act
         render(
-            <Panel title={title} subtitle={subtitle}>
+            <Panel
+                title={title}
+                subtitle={subtitle}
+            >
                 <div>{childText}</div>
-            </Panel>
+            </Panel>,
         );
 
         // Assert
@@ -33,10 +36,13 @@ describe('Panel', () => {
 
         // Act
         render(
-            <Panel title="Title" subtitle="Subtitle">
-                <div data-testid="first-child">{childText1}</div>
-                <div data-testid="second-child">{childText2}</div>
-            </Panel>
+            <Panel
+                title='Title'
+                subtitle='Subtitle'
+            >
+                <div data-testid='first-child'>{childText1}</div>
+                <div data-testid='second-child'>{childText2}</div>
+            </Panel>,
         );
 
         // Assert
@@ -48,17 +54,17 @@ describe('Panel', () => {
         // This test ensures the styled components are exported and can be used
         expect(PanelContainer).toBeDefined();
         expect(PanelFooterText).toBeDefined();
-        
+
         // Render the components to make sure they work
         render(
             <div>
-                <PanelContainer data-testid="panel-container">
+                <PanelContainer data-testid='panel-container'>
                     Container content
                 </PanelContainer>
-                <PanelFooterText data-testid="panel-footer">
+                <PanelFooterText data-testid='panel-footer'>
                     Footer text
                 </PanelFooterText>
-            </div>
+            </div>,
         );
 
         expect(screen.getByTestId('panel-container')).toBeInTheDocument();

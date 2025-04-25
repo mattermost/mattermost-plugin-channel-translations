@@ -2,8 +2,8 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { IntlProvider } from 'react-intl';
+import {render, screen, fireEvent} from '@testing-library/react';
+import {IntlProvider} from 'react-intl';
 
 import {
     ItemList,
@@ -21,9 +21,9 @@ describe('Item components', () => {
     // Helper to wrap components with IntlProvider for FormattedMessage
     const renderWithIntl = (component: React.ReactNode) => {
         return render(
-            <IntlProvider locale="en">
+            <IntlProvider locale='en'>
                 {component}
-            </IntlProvider>
+            </IntlProvider>,
         );
     };
 
@@ -31,10 +31,10 @@ describe('Item components', () => {
         test('renders children correctly', () => {
             // Arrange
             render(
-                <ItemList data-testid="item-list">
-                    <div data-testid="child1">Child 1</div>
-                    <div data-testid="child2">Child 2</div>
-                </ItemList>
+                <ItemList data-testid='item-list'>
+                    <div data-testid='child1'>Child 1</div>
+                    <div data-testid='child2'>Child 2</div>
+                </ItemList>,
             );
 
             // Assert
@@ -57,7 +57,7 @@ describe('Item components', () => {
                     label={label}
                     value={value}
                     onChange={onChange}
-                />
+                />,
             );
 
             // Assert
@@ -73,11 +73,11 @@ describe('Item components', () => {
             // Act
             render(
                 <TextItem
-                    label="Label"
-                    value="Value"
+                    label='Label'
+                    value='Value'
                     helptext={helptext}
                     onChange={onChange}
-                />
+                />,
             );
 
             // Assert
@@ -91,11 +91,11 @@ describe('Item components', () => {
             // Act
             render(
                 <TextItem
-                    label="Label"
-                    value="Value"
+                    label='Label'
+                    value='Value'
                     multiline={true}
                     onChange={onChange}
-                />
+                />,
             );
 
             // Assert - Check that a textarea is rendered
@@ -110,13 +110,13 @@ describe('Item components', () => {
             // Act
             render(
                 <TextItem
-                    label="Label"
-                    value="Value"
+                    label='Label'
+                    value='Value'
                     onChange={onChange}
-                />
+                />,
             );
 
-            fireEvent.change(screen.getByDisplayValue('Value'), { target: { value: 'New Value' } });
+            fireEvent.change(screen.getByDisplayValue('Value'), {target: {value: 'New Value'}});
 
             // Assert
             expect(onChange).toHaveBeenCalled();
@@ -137,9 +137,9 @@ describe('Item components', () => {
                     value={value}
                     onChange={onChange}
                 >
-                    <SelectionItemOption value="option1">Option 1</SelectionItemOption>
-                    <SelectionItemOption value="option2">Option 2</SelectionItemOption>
-                </SelectionItem>
+                    <SelectionItemOption value='option1'>Option 1</SelectionItemOption>
+                    <SelectionItemOption value='option2'>Option 2</SelectionItemOption>
+                </SelectionItem>,
             );
 
             // Assert
@@ -156,16 +156,16 @@ describe('Item components', () => {
             // Act
             render(
                 <SelectionItem
-                    label="Label"
-                    value="option1"
+                    label='Label'
+                    value='option1'
                     onChange={onChange}
                 >
-                    <SelectionItemOption value="option1">Option 1</SelectionItemOption>
-                    <SelectionItemOption value="option2">Option 2</SelectionItemOption>
-                </SelectionItem>
+                    <SelectionItemOption value='option1'>Option 1</SelectionItemOption>
+                    <SelectionItemOption value='option2'>Option 2</SelectionItemOption>
+                </SelectionItem>,
             );
 
-            fireEvent.change(screen.getByRole('combobox'), { target: { value: 'option2' } });
+            fireEvent.change(screen.getByRole('combobox'), {target: {value: 'option2'}});
 
             // Assert
             expect(onChange).toHaveBeenCalled();
@@ -184,18 +184,19 @@ describe('Item components', () => {
                     label={label}
                     value={true}
                     onChange={onChange}
-                />
+                />,
             );
 
             // Assert
             expect(screen.getByText(label)).toBeInTheDocument();
-            
+
             // Get all radio inputs
             const radioInputs = screen.getAllByRole('radio');
             expect(radioInputs).toHaveLength(2);
-            
+
             // First radio should be checked (true)
             expect(radioInputs[0]).toBeChecked();
+
             // Second radio should not be checked (false)
             expect(radioInputs[1]).not.toBeChecked();
         });
@@ -208,11 +209,11 @@ describe('Item components', () => {
             // Act
             renderWithIntl(
                 <BooleanItem
-                    label="Label"
+                    label='Label'
                     value={true}
                     helpText={helpText}
                     onChange={onChange}
-                />
+                />,
             );
 
             // Assert
@@ -226,10 +227,10 @@ describe('Item components', () => {
             // Act
             renderWithIntl(
                 <BooleanItem
-                    label="Label"
+                    label='Label'
                     value={false}
                     onChange={onChange}
-                />
+                />,
             );
 
             // Click the "true" radio button
@@ -247,10 +248,10 @@ describe('Item components', () => {
             // Act
             renderWithIntl(
                 <BooleanItem
-                    label="Label"
+                    label='Label'
                     value={true}
                     onChange={onChange}
-                />
+                />,
             );
 
             // Click the "false" radio button

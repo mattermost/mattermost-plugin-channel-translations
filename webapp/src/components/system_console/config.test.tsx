@@ -2,8 +2,8 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { IntlProvider } from 'react-intl';
+import {render, screen, fireEvent} from '@testing-library/react';
+import {IntlProvider} from 'react-intl';
 
 import Config from './config';
 
@@ -26,9 +26,9 @@ describe('Config', () => {
     // Helper to render with IntlProvider
     const renderWithIntl = (component: React.ReactNode) => {
         return render(
-            <IntlProvider locale="en">
+            <IntlProvider locale='en'>
                 {component}
-            </IntlProvider>
+            </IntlProvider>,
         );
     };
 
@@ -38,7 +38,7 @@ describe('Config', () => {
 
     test('renders all configuration items', () => {
         // Act
-        renderWithIntl(<Config {...defaultProps} />);
+        renderWithIntl(<Config {...defaultProps}/>);
 
         // Assert
         // Check that all configuration items are present
@@ -55,7 +55,7 @@ describe('Config', () => {
 
     test('renders BetaMessage with link', () => {
         // Act
-        renderWithIntl(<Config {...defaultProps} />);
+        renderWithIntl(<Config {...defaultProps}/>);
 
         // Assert
         expect(screen.getByText(/create a new issue in the plugin repository/)).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('Config', () => {
 
     test('calls onChange when Enable Channel Translations is changed', () => {
         // Act
-        renderWithIntl(<Config {...defaultProps} />);
+        renderWithIntl(<Config {...defaultProps}/>);
 
         // Find the "true" radio button (the first one) and click it
         const radioButtons = screen.getAllByRole('radio');
@@ -79,17 +79,17 @@ describe('Config', () => {
             {
                 ...defaultProps.value,
                 enableTranslations: true,
-            }
+            },
         );
     });
 
     test('calls onChange when Translation Languages is changed', () => {
         // Act
-        renderWithIntl(<Config {...defaultProps} />);
+        renderWithIntl(<Config {...defaultProps}/>);
 
         // Find the input field and change its value
         const input = screen.getByDisplayValue('en,es,fr');
-        fireEvent.change(input, { target: { value: 'en,de,fr' } });
+        fireEvent.change(input, {target: {value: 'en,de,fr'}});
 
         // Assert
         expect(defaultProps.onChange).toHaveBeenCalledWith(
@@ -97,17 +97,17 @@ describe('Config', () => {
             {
                 ...defaultProps.value,
                 translationLanguages: 'en,de,fr',
-            }
+            },
         );
     });
 
     test('calls onChange when Translation Bot is changed', () => {
         // Act
-        renderWithIntl(<Config {...defaultProps} />);
+        renderWithIntl(<Config {...defaultProps}/>);
 
         // Find the input field and change its value
         const input = screen.getByDisplayValue('TranslateBot');
-        fireEvent.change(input, { target: { value: 'NewBot' } });
+        fireEvent.change(input, {target: {value: 'NewBot'}});
 
         // Assert
         expect(defaultProps.onChange).toHaveBeenCalledWith(
@@ -115,13 +115,13 @@ describe('Config', () => {
             {
                 ...defaultProps.value,
                 translationBotName: 'NewBot',
-            }
+            },
         );
     });
 
     test('calls onChange when Translate System Messages is changed', () => {
         // Act
-        renderWithIntl(<Config {...defaultProps} />);
+        renderWithIntl(<Config {...defaultProps}/>);
 
         // Find the "true" radio button for system messages (would be the third radio button)
         const radioButtons = screen.getAllByRole('radio');
@@ -133,13 +133,13 @@ describe('Config', () => {
             {
                 ...defaultProps.value,
                 translateSystemMessages: true,
-            }
+            },
         );
     });
 
     test('registers save action on mount and unregisters on unmount', () => {
         // Act
-        const { unmount } = renderWithIntl(<Config {...defaultProps} />);
+        const {unmount} = renderWithIntl(<Config {...defaultProps}/>);
 
         // Assert - registerSaveAction should be called on mount
         expect(defaultProps.registerSaveAction).toHaveBeenCalled();
@@ -159,7 +159,7 @@ describe('Config', () => {
         };
 
         // Act
-        renderWithIntl(<Config {...propsWithoutValue} />)
+        renderWithIntl(<Config {...propsWithoutValue}/>);
 
         // Assert - should not crash and render with default values
         expect(screen.getByText('Configuration')).toBeInTheDocument();
