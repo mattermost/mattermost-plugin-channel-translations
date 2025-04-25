@@ -47,8 +47,13 @@ export const TranslatedPost = (props: Props) => {
     }
 
     const translations = post.props?.translations || {};
-    const translationKey = currentUserTranslationPreference || currentUserLocale || '';
-    if (translations[translationKey]) {
+    
+    // First try user preference, then user locale
+    const translationKey = translations[currentUserTranslationPreference] ? 
+        currentUserTranslationPreference : 
+        translations[currentUserLocale] ? currentUserLocale : '';
+        
+    if (translationKey && translations[translationKey]) {
         loading = false;
         message = translations[translationKey];
     }

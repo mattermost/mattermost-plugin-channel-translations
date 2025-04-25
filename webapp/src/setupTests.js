@@ -20,6 +20,6 @@ jest.mock('react-intl', () => {
     return {
         ...reactIntl,
         useIntl: () => intl,
-        FormattedMessage: ({ defaultMessage }) => <span>{defaultMessage}</span>,
+        FormattedMessage: ({ defaultMessage }) => <span>{defaultMessage || ''}</span>,
     };
 });
