@@ -20,43 +20,8 @@ interface Props {
     message: string;
     channelID: string;
     postID: string;
-    showCursor?: boolean;
     channelNamesMap?: ChannelNamesMap;
 }
-
-const blinkKeyframes = keyframes`
-	0% { opacity: 0.48; }
-	20% { opacity: 0.48; }
-	100% { opacity: 0.12; }
-`;
-
-const TextContainer = styled.div<{showCursor?: boolean}>`
-	${(props) => props.showCursor && css`
-		>ul:last-child>li:last-child>span:not(:has(li))::after,
-		>ol:last-child>li:last-child>span:not(:has(li))::after,
-		>ul:last-child>li:last-child>span>ul>li:last-child>span:not(:has(li))::after,
-		>ol:last-child>li:last-child>span>ul>li:last-child>span:not(:has(li))::after,
-		>ul:last-child>li:last-child>span>ol>li:last-child>span:not(:has(li))::after,
-		>ol:last-child>li:last-child>span>ol>li:last-child>span:not(:has(li))::after,
-		>h1:last-child::after,
-		>h2:last-child::after,
-		>h3:last-child::after,
-		>h4:last-child::after,
-		>h5:last-child::after,
-		>h6:last-child::after,
-		>blockquote:last-child>p::after,
-		>p:last-child::after {
-			content: '';
-			width: 7px;
-			height: 16px;
-			background: rgba(var(--center-channel-color-rgb), 0.48);
-			display: inline-block;
-			margin-left: 3px;
-
-			animation: ${blinkKeyframes} 500ms ease-in-out infinite;
-		}
-	`}
-`;
 
 const PostText = (props: Props) => {
     const channel = useSelector<GlobalState, Channel>((state) => state.entities.channels.channels[props.channelID]);
@@ -84,22 +49,19 @@ const PostText = (props: Props) => {
         postId: props.postID,
     };
 
-    const text = messageHtmlToComponent(
+    let text = messageHtmlToComponent(
         formatText(props.message, markdownOptions),
         messageHtmlToComponentOptions,
     );
 
     if (!text) {
-        return <TextContainer showCursor={props.showCursor}>{<p/>}</TextContainer>;
+      text = <p/>
     }
 
     return (
-        <TextContainer
-            data-testid='posttext'
-            showCursor={props.showCursor}
-        >
+        <div data-testid='posttext'>
             {text}
-        </TextContainer>
+        </div>
     );
 };
 

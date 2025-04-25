@@ -12,7 +12,7 @@ describe('PostText', () => {
     const mockStore = configureStore();
     const channel = {id: 'channel1', team_id: 'team1'};
     const team = {id: 'team1', name: 'testteam'};
-    
+
     beforeEach(() => {
         jest.clearAllMocks();
         window.PostUtils.formatText.mockReturnValue('formatted text');
@@ -44,9 +44,9 @@ describe('PostText', () => {
         // Act
         render(
             <Provider store={store}>
-                <PostText 
-                    message="Test message" 
-                    channelID="channel1" 
+                <PostText
+                    message="Test message"
+                    channelID="channel1"
                     postID="post1"
                 />
             </Provider>
@@ -91,9 +91,9 @@ describe('PostText', () => {
         // Act
         render(
             <Provider store={store}>
-                <PostText 
-                    message="Test message" 
-                    channelID="nonexistent" 
+                <PostText
+                    message="Test message"
+                    channelID="nonexistent"
                     postID="post1"
                 />
             </Provider>
@@ -134,9 +134,9 @@ describe('PostText', () => {
         // Act
         render(
             <Provider store={store}>
-                <PostText 
-                    message="Test message with ~channel-name" 
-                    channelID="channel1" 
+                <PostText
+                    message="Test message with ~channel-name"
+                    channelID="channel1"
                     postID="post1"
                     channelNamesMap={channelNamesMap}
                 />
@@ -172,11 +172,10 @@ describe('PostText', () => {
         // Act
         render(
             <Provider store={store}>
-                <PostText 
-                    message="" 
-                    channelID="channel1" 
+                <PostText
+                    message=""
+                    channelID="channel1"
                     postID="post1"
-                    showCursor={true}
                 />
             </Provider>
         );
@@ -184,53 +183,5 @@ describe('PostText', () => {
         // Assert
         const container = screen.getByTestId('posttext');
         expect(container).toContainHTML('<p></p>');
-    });
-
-    test('applies showCursor prop correctly', () => {
-        // Arrange
-        const store = mockStore({
-            entities: {
-                channels: {
-                    channels: {},
-                },
-                teams: {
-                    teams: {},
-                },
-                general: {
-                    config: {},
-                },
-            },
-        });
-
-        // Act
-        const {rerender} = render(
-            <Provider store={store}>
-                <PostText 
-                    message="Test message" 
-                    channelID="channel1" 
-                    postID="post1"
-                    showCursor={true}
-                />
-            </Provider>
-        );
-
-        // Assert
-        const withCursor = screen.getByTestId('posttext');
-        expect(withCursor).toHaveAttribute('showCursor', 'true');
-
-        // Rerender without cursor
-        rerender(
-            <Provider store={store}>
-                <PostText 
-                    message="Test message" 
-                    channelID="channel1" 
-                    postID="post1"
-                    showCursor={false}
-                />
-            </Provider>
-        );
-
-        const withoutCursor = screen.getByTestId('posttext');
-        expect(withoutCursor).toHaveAttribute('showCursor', 'false');
     });
 });
