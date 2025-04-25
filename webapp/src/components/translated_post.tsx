@@ -4,7 +4,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import {useSelector} from 'react-redux';
-import {FormattedMessage} from 'react-intl';
 
 import {GlobalState} from '@mattermost/types/store';
 
@@ -49,9 +48,12 @@ export const TranslatedPost = (props: Props) => {
     const translations = post.props?.translations || {};
 
     // First try user preference, then user locale
-    const translationKey = translations[currentUserTranslationPreference] ?
-        currentUserTranslationPreference :
-        translations[currentUserLocale] ? currentUserLocale : '';
+    let translationKey = '';
+    if (translations[currentUserTranslationPreference]) {
+        translationKey = currentUserTranslationPreference;
+    } else if (translations[currentUserLocale]) {
+        translationKey = currentUserLocale;
+    }
 
     if (translationKey && translations[translationKey]) {
         loading = false;
@@ -63,7 +65,7 @@ export const TranslatedPost = (props: Props) => {
             {loading && (
                 <Loading>
                     <LoadingSpinner/>
-                    <span>Translating</span>
+                    <span>{'Translating'}</span>
                 </Loading>
             )}
             {!loading && (

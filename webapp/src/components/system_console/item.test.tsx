@@ -32,8 +32,8 @@ describe('Item components', () => {
             // Arrange
             render(
                 <ItemList data-testid='item-list'>
-                    <div data-testid='child1'>Child 1</div>
-                    <div data-testid='child2'>Child 2</div>
+                    <div data-testid='child1'>{'Child 1'}</div>
+                    <div data-testid='child2'>{'Child 2'}</div>
                 </ItemList>,
             );
 
@@ -137,8 +137,8 @@ describe('Item components', () => {
                     value={value}
                     onChange={onChange}
                 >
-                    <SelectionItemOption value='option1'>Option 1</SelectionItemOption>
-                    <SelectionItemOption value='option2'>Option 2</SelectionItemOption>
+                    <SelectionItemOption value='option1'>{'Option 1'}</SelectionItemOption>
+                    <SelectionItemOption value='option2'>{'Option 2'}</SelectionItemOption>
                 </SelectionItem>,
             );
 
@@ -160,8 +160,8 @@ describe('Item components', () => {
                     value='option1'
                     onChange={onChange}
                 >
-                    <SelectionItemOption value='option1'>Option 1</SelectionItemOption>
-                    <SelectionItemOption value='option2'>Option 2</SelectionItemOption>
+                    <SelectionItemOption value='option1'>{'Option 1'}</SelectionItemOption>
+                    <SelectionItemOption value='option2'>{'Option 2'}</SelectionItemOption>
                 </SelectionItem>,
             );
 

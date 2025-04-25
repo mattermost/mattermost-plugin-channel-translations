@@ -155,7 +155,7 @@ describe('Config', () => {
         // Arrange
         const propsWithoutValue = {
             ...defaultProps,
-            value: undefined,
+            value: void 0,
         };
 
         // Act

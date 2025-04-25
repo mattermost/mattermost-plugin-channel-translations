@@ -59,10 +59,10 @@ describe('Panel', () => {
         render(
             <div>
                 <PanelContainer data-testid='panel-container'>
-                    Container content
+                    {'Container content'}
                 </PanelContainer>
                 <PanelFooterText data-testid='panel-footer'>
-                    Footer text
+                    {'Footer text'}
                 </PanelFooterText>
             </div>,
         );

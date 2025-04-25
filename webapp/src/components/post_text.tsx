@@ -3,7 +3,6 @@
 
 import React from 'react';
 import {useSelector} from 'react-redux';
-import styled, {keyframes, css} from 'styled-components';
 
 import {GlobalState} from '@mattermost/types/store';
 import {Channel} from '@mattermost/types/channels';

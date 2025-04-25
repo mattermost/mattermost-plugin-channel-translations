@@ -7,5 +7,5 @@ import React from 'react';
 // Mock PostUtils global
 window.PostUtils = {
     formatText: jest.fn().mockReturnValue('formatted text'),
-    messageHtmlToComponent: jest.fn().mockImplementation((text) => <div>{text}</div>),
+    messageHtmlToComponent: jest.fn().mockImplementation((text) => React.createElement('div', null, text)),
 };
