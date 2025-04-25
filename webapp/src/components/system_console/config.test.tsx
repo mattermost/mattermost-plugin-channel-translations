@@ -153,10 +153,7 @@ describe('Config', () => {
 
     test('renders with default config when value is undefined', () => {
         // Arrange
-        const propsWithoutValue = {
-            ...defaultProps,
-            value: undefined,
-        };
+        const { value, ...propsWithoutValue } = defaultProps;
 
         // Act
         renderWithIntl(<Config {...propsWithoutValue}/>);
