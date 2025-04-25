@@ -26,7 +26,7 @@ const PostText = (props: Props) => {
     const channel = useSelector<GlobalState, Channel | undefined>((state) =>
         state.entities?.channels?.channels?.[props.channelID]);
     const team = useSelector<GlobalState, Team | undefined>((state) =>
-        state.entities?.teams?.teams?.[channel?.team_id]);
+        state.entities?.teams?.teams?.[channel?.team_id || '']);
     const siteURL = useSelector<GlobalState, string | undefined>((state) =>
         state.entities?.general?.config?.SiteURL);
 

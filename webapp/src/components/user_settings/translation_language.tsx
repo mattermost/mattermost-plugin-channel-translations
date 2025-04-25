@@ -4,12 +4,15 @@
 import React, {useState, useEffect} from 'react';
 import {useSelector} from 'react-redux';
 
-import type {PluginCustomSettingComponent} from '@mattermost/types/plugins/user_settings';
 import PropTypes from 'prop-types';
 
 import {getTranslationLanguages} from '@/client';
 
-const TranslationLanguageSetting: PluginCustomSettingComponent = ({informChange}) => {
+type Props = {
+  informChange: (settingName: string, value: string) => void;
+}
+
+const TranslationLanguageSetting = ({informChange}: Props) => {
     const [languages, setLanguages] = useState<string[]>([]);
     const [selectedLanguage, setSelectedLanguage] = useState<string>('');
     const userPreferences = useSelector((state: any) => state.entities.preferences.myPreferences);

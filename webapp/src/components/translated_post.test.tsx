@@ -15,7 +15,7 @@ describe('TranslatedPost', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         window.PostUtils.formatText.mockReturnValue('formatted text');
-        window.PostUtils.messageHtmlToComponent.mockImplementation((text) => <div>{text}</div>);
+        window.PostUtils.messageHtmlToComponent.mockImplementation((text: string) => <div>{text}</div>);
     });
 
     test('renders loading state when post type is custom_translation', () => {

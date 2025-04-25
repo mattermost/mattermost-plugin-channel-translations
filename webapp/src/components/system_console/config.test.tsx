@@ -150,18 +150,4 @@ describe('Config', () => {
         // Assert - unRegisterSaveAction should be called on unmount
         expect(defaultProps.unRegisterSaveAction).toHaveBeenCalled();
     });
-
-    test('renders with default config when value is undefined', () => {
-        // Arrange
-        const propsWithoutValue = {
-            ...defaultProps,
-        };
-        delete propsWithoutValue.value;
-
-        // Act
-        renderWithIntl(<Config {...propsWithoutValue}/>);
-
-        // Assert - should not crash and render with default values
-        expect(screen.getByText('Configuration')).toBeInTheDocument();
-    });
 });

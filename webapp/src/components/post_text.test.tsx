@@ -16,7 +16,7 @@ describe('PostText', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         window.PostUtils.formatText.mockReturnValue('formatted text');
-        window.PostUtils.messageHtmlToComponent.mockImplementation((text) => <div>{text}</div>);
+        window.PostUtils.messageHtmlToComponent.mockImplementation((text: string) => <div>{text}</div>);
     });
 
     test('renders message correctly', () => {

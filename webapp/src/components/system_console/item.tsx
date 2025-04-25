@@ -16,7 +16,7 @@ type TextItemProps = {
     label: string,
     value: string,
     type?: string,
-    helptext?: string,
+    helpText?: string,
     multiline?: boolean,
     placeholder?: string,
     maxLength?: number,
@@ -36,8 +36,8 @@ export const TextItem = (props: TextItemProps) => {
                     onChange={props.onChange}
                     maxLength={props.maxLength}
                 />
-                {props.helptext &&
-                <HelpText>{props.helptext}</HelpText>
+                {props.helpText &&
+                <HelpText>{props.helpText}</HelpText>
                 }
             </TextFieldContainer>
         </>

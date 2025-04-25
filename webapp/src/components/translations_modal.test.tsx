@@ -71,7 +71,7 @@ describe('TranslationsModal', () => {
         );
 
         const closeButton = screen.getByTestId('modal-header').querySelector('button.close');
-        fireEvent.click(closeButton);
+        fireEvent.click(closeButton!);
 
         // Assert
         expect(onHide).toHaveBeenCalledTimes(1);

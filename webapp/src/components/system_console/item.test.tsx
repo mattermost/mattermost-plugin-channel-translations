@@ -67,7 +67,7 @@ describe('Item components', () => {
 
         test('renders help text when provided', () => {
             // Arrange
-            const helptext = 'This is help text';
+            const helpText = 'This is help text';
             const onChange = jest.fn();
 
             // Act
@@ -75,13 +75,13 @@ describe('Item components', () => {
                 <TextItem
                     label='Label'
                     value='Value'
-                    helptext={helptext}
+                    helpText={helpText}
                     onChange={onChange}
                 />,
             );
 
             // Assert
-            expect(screen.getByText(helptext)).toBeInTheDocument();
+            expect(screen.getByText(helpText)).toBeInTheDocument();
         });
 
         test('renders as textarea when multiline is true', () => {

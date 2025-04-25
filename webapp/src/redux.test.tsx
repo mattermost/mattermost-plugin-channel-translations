@@ -10,10 +10,9 @@ describe('redux', () => {
             const mockRegistry = {
                 registerReducer: jest.fn(),
             };
-            const mockStore = {} as any;
 
             // Act
-            await setupRedux(mockRegistry, mockStore);
+            await setupRedux(mockRegistry);
 
             // Test directly with the reducer
             const post = {id: 'post1', message: 'Test message'};
@@ -30,10 +29,9 @@ describe('redux', () => {
             const mockRegistry = {
                 registerReducer: jest.fn(),
             };
-            const mockStore = {} as any;
 
             // Act
-            await setupRedux(mockRegistry, mockStore);
+            await setupRedux(mockRegistry);
 
             // Test directly with the reducer
             const initialState = translationsModal(false, {type: '', post: null});

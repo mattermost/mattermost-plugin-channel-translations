@@ -7,11 +7,6 @@ import {Store, Action} from 'redux';
 import {FormattedMessage} from 'react-intl';
 
 import {GlobalState} from '@mattermost/types/store';
-import type {
-    PluginConfiguration,
-    PluginConfigurationSection,
-    PluginConfigurationCustomSetting,
-} from '@mattermost/types/plugins/user_settings';
 
 import manifest from '@/manifest';
 
@@ -29,7 +24,7 @@ type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>
 export default class Plugin {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
     public async initialize(registry: any, store: WebappStore) {
-        setupRedux(registry, store);
+        setupRedux(registry);
         const TranslationsModalContext = React.createContext({post: null, show: false});
 
         registry.registerTranslations((locale: string) => {
@@ -130,7 +125,7 @@ export default class Plugin {
         registry.registerAdminConsoleCustomSetting('Config', Config);
 
         // Register user settings
-        const userSettings: PluginConfiguration = {
+        const userSettings: any = {
             id: manifest.id,
             uiName: 'Channel translations',
             icon: 'icon-globe',
@@ -144,9 +139,9 @@ export default class Plugin {
                             title: 'Preferred Channel Translation Language',
                             helpText: 'Select your preferred language for channel translations. This setting applies to all channels where translations are enabled.',
                             component: TranslationLanguageSetting,
-                        } as PluginConfigurationCustomSetting,
+                        }
                     ],
-                } as PluginConfigurationSection,
+                }
             ],
         };
 
@@ -158,6 +153,7 @@ declare global {
     interface Window {
         registerPlugin(pluginId: string, plugin: Plugin): void
         WebappUtils: any
+        PostUtils: any
     }
 }
 
