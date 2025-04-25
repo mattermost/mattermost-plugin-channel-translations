@@ -45,7 +45,7 @@ func (p *Plugin) ginlogger(c *gin.Context) {
 	c.Next()
 
 	for _, ginErr := range c.Errors {
-		p.API.LogError(ginErr.Error())
+		p.pluginAPI.Log.Error(ginErr.Error())
 	}
 }
 
@@ -70,10 +70,11 @@ func (p *Plugin) handleGetTranslationLanguages(c *gin.Context) {
 			configuredLanguages[i] = strings.TrimSpace(lang)
 		}
 	}
-	preference, _ := p.API.KVGet(getUserTranslationPreferenceKey(userID))
+	var preference string
+	_ = p.pluginAPI.KV.Get(getUserTranslationPreferenceKey(userID), &preference)
 	response := TranslationLanguagesResponse{
 		Languages:      configuredLanguages,
-		UserPreference: string(preference),
+		UserPreference: preference,
 	}
 	c.JSON(http.StatusOK, response)
 }
@@ -87,7 +88,7 @@ func (p *Plugin) handleSetUserTranslationLanguage(c *gin.Context) {
 		return
 	}
 
-	if err := p.API.KVSet(getUserTranslationPreferenceKey(userID), []byte(req.Language)); err != nil {
+	if _, err := p.pluginAPI.KV.Set(getUserTranslationPreferenceKey(userID), []byte(req.Language)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save preference"})
 		return
 	}

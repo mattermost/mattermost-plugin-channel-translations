@@ -72,7 +72,7 @@ func (p *Plugin) translateText(message, requestorID, lang string) (string, error
 	request := interpluginclient.SimpleCompletionRequest{
 		SystemPrompt:    translationSystemPrompt,
 		UserPrompt:      translationUserPrompt,
-		BotUsername:     p.getConfiguration().Config.TranslationBotName,
+		BotUsername:     p.getConfiguration().TranslationBotName,
 		RequesterUserID: requestorID,
 		Parameters:      promptParameters,
 	}
