@@ -20,6 +20,14 @@ jest.mock('react-intl', () => {
     return {
         ...reactIntl,
         useIntl: () => intl,
-        FormattedMessage: ({ defaultMessage }) => <span>{defaultMessage || ''}</span>,
+        FormattedMessage: ({ defaultMessage, values }) => {
+            // Si no hay valores o defaultMessage está vacío, simplemente retornamos el texto
+            if (!values || !defaultMessage) {
+                return <span>{defaultMessage || ''}</span>;
+            }
+            
+            // Para los casos de prueba, solo retornamos el mensaje base sin procesar los valores
+            return <span>{defaultMessage}</span>;
+        },
     };
 });

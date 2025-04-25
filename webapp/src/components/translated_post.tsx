@@ -60,7 +60,12 @@ export const TranslatedPost = (props: Props) => {
 
     return (
         <PostContainer>
-            {loading && <Loading><LoadingSpinner/><FormattedMessage defaultMessage='Translating'/></Loading>}
+            {loading && (
+                <Loading>
+                    <LoadingSpinner/>
+                    <span>Translating</span>
+                </Loading>
+            )}
             {!loading && (
                 <PostText
                     message={message}
