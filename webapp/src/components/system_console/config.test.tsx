@@ -159,11 +159,7 @@ describe('Config', () => {
         };
 
         // Act
-        render(
-            <IntlProvider locale="en">
-                <Config {...propsWithoutValue} />
-            </IntlProvider>
-        );
+        renderWithIntl(<Config {...propsWithoutValue} />)
 
         // Assert - should not crash and render with default values
         expect(screen.getByText('Configuration')).toBeInTheDocument();
