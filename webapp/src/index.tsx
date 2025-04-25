@@ -139,9 +139,9 @@ export default class Plugin {
                             title: 'Preferred Channel Translation Language',
                             helpText: 'Select your preferred language for channel translations. This setting applies to all channels where translations are enabled.',
                             component: TranslationLanguageSetting,
-                        }
+                        },
                     ],
-                }
+                },
             ],
         };
 

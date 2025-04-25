@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import {getTranslationLanguages} from '@/client';
 
 type Props = {
-  informChange: (settingName: string, value: string) => void;
+    informChange: (settingName: string, value: string) => void;
 }
 
 const TranslationLanguageSetting = ({informChange}: Props) => {
