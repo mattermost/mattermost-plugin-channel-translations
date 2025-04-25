@@ -28,13 +28,13 @@ describe('TranslationsModal', () => {
 
         // Act
         render(
-            <IntlProvider locale="en">
-                <TranslationsModal 
-                    show={true} 
-                    onHide={onHide} 
-                    post={post} 
+            <IntlProvider locale='en'>
+                <TranslationsModal
+                    show={true}
+                    onHide={onHide}
+                    post={post}
                 />
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         // Assert
@@ -61,13 +61,13 @@ describe('TranslationsModal', () => {
 
         // Act
         render(
-            <IntlProvider locale="en">
-                <TranslationsModal 
-                    show={true} 
-                    onHide={onHide} 
-                    post={post} 
+            <IntlProvider locale='en'>
+                <TranslationsModal
+                    show={true}
+                    onHide={onHide}
+                    post={post}
                 />
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         const closeButton = screen.getByTestId('modal-header').querySelector('button.close');
@@ -88,13 +88,13 @@ describe('TranslationsModal', () => {
 
         // Act
         render(
-            <IntlProvider locale="en">
-                <TranslationsModal 
-                    show={true} 
-                    onHide={onHide} 
-                    post={post} 
+            <IntlProvider locale='en'>
+                <TranslationsModal
+                    show={true}
+                    onHide={onHide}
+                    post={post}
                 />
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         // Assert
@@ -113,13 +113,13 @@ describe('TranslationsModal', () => {
 
         // Act
         render(
-            <IntlProvider locale="en">
-                <TranslationsModal 
-                    show={true} 
-                    onHide={onHide} 
-                    post={post} 
+            <IntlProvider locale='en'>
+                <TranslationsModal
+                    show={true}
+                    onHide={onHide}
+                    post={post}
                 />
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         // Assert
@@ -142,13 +142,13 @@ describe('TranslationsModal', () => {
 
         // Act
         const {container} = render(
-            <IntlProvider locale="en">
-                <TranslationsModal 
-                    show={false} 
-                    onHide={onHide} 
-                    post={post} 
+            <IntlProvider locale='en'>
+                <TranslationsModal
+                    show={false}
+                    onHide={onHide}
+                    post={post}
                 />
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         // Assert

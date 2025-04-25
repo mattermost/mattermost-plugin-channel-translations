@@ -41,14 +41,17 @@ const TranslationsModal: React.FC<TranslationsModalProps> = ({show, onHide, post
             onHide={onHide}
             aria-labelledby='translations-modal-title'
         >
-            <Modal.Header closeButton={true} data-testid="modal-header">
+            <Modal.Header
+                closeButton={true}
+                data-testid='modal-header'
+            >
                 <Modal.Title id='translations-modal-title'>
                     <FormattedMessage defaultMessage='Translations'/>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <TranslationItem>
-                    <TranslationLanguage data-testid="original-label">
+                    <TranslationLanguage data-testid='original-label'>
                         <FormattedMessage defaultMessage='Original'/>
                     </TranslationLanguage>
                     <TranslationText>{post.message}</TranslationText>

@@ -11,7 +11,7 @@ import {TranslatedPost} from './translated_post';
 
 describe('TranslatedPost', () => {
     const mockStore = configureStore();
-    
+
     beforeEach(() => {
         jest.clearAllMocks();
         window.PostUtils.formatText.mockReturnValue('formatted text');
@@ -42,7 +42,7 @@ describe('TranslatedPost', () => {
                 },
                 general: {
                     config: {},
-                }
+                },
             },
         });
 
@@ -58,11 +58,11 @@ describe('TranslatedPost', () => {
 
         // Act
         render(
-            <IntlProvider locale="en">
+            <IntlProvider locale='en'>
                 <Provider store={store}>
-                    <TranslatedPost post={post} />
+                    <TranslatedPost post={post}/>
                 </Provider>
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         // Assert
@@ -98,7 +98,7 @@ describe('TranslatedPost', () => {
                 },
                 general: {
                     config: {},
-                }
+                },
             },
         });
 
@@ -116,18 +116,18 @@ describe('TranslatedPost', () => {
 
         // Act
         render(
-            <IntlProvider locale="en">
+            <IntlProvider locale='en'>
                 <Provider store={store}>
-                    <TranslatedPost post={post} />
+                    <TranslatedPost post={post}/>
                 </Provider>
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         // Assert
         expect(screen.queryByTestId('loadingSpinner')).not.toBeInTheDocument();
         expect(window.PostUtils.formatText).toHaveBeenCalledWith(
             'Mensaje traducido',
-            expect.anything()
+            expect.anything(),
         );
     });
 
@@ -155,7 +155,7 @@ describe('TranslatedPost', () => {
                 },
                 general: {
                     config: {},
-                }
+                },
             },
         });
 
@@ -173,18 +173,18 @@ describe('TranslatedPost', () => {
 
         // Act
         render(
-            <IntlProvider locale="en">
+            <IntlProvider locale='en'>
                 <Provider store={store}>
-                    <TranslatedPost post={post} />
+                    <TranslatedPost post={post}/>
                 </Provider>
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         // Assert
         expect(screen.queryByTestId('loadingSpinner')).not.toBeInTheDocument();
         expect(window.PostUtils.formatText).toHaveBeenCalledWith(
             'Message traduit',
-            expect.anything()
+            expect.anything(),
         );
     });
 
@@ -212,7 +212,7 @@ describe('TranslatedPost', () => {
                 },
                 general: {
                     config: {},
-                }
+                },
             },
         });
 
@@ -230,18 +230,18 @@ describe('TranslatedPost', () => {
 
         // Act
         render(
-            <IntlProvider locale="en">
+            <IntlProvider locale='en'>
                 <Provider store={store}>
-                    <TranslatedPost post={post} />
+                    <TranslatedPost post={post}/>
                 </Provider>
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         // Assert
         expect(screen.queryByTestId('loadingSpinner')).not.toBeInTheDocument();
         expect(window.PostUtils.formatText).toHaveBeenCalledWith(
             'Original message',
-            expect.anything()
+            expect.anything(),
         );
     });
 
@@ -269,7 +269,7 @@ describe('TranslatedPost', () => {
                 },
                 general: {
                     config: {},
-                }
+                },
             },
         });
 
@@ -281,18 +281,18 @@ describe('TranslatedPost', () => {
 
         // Act
         render(
-            <IntlProvider locale="en">
+            <IntlProvider locale='en'>
                 <Provider store={store}>
-                    <TranslatedPost post={post} />
+                    <TranslatedPost post={post}/>
                 </Provider>
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         // Assert
         expect(screen.queryByTestId('loadingSpinner')).not.toBeInTheDocument();
         expect(window.PostUtils.formatText).toHaveBeenCalledWith(
             'Original message',
-            expect.anything()
+            expect.anything(),
         );
     });
 
@@ -320,7 +320,7 @@ describe('TranslatedPost', () => {
                 },
                 general: {
                     config: {},
-                }
+                },
             },
         });
 
@@ -342,21 +342,22 @@ describe('TranslatedPost', () => {
 
         // Act
         render(
-            <IntlProvider locale="en">
+            <IntlProvider locale='en'>
                 <Provider store={store}>
-                    <TranslatedPost post={post} />
+                    <TranslatedPost post={post}/>
                 </Provider>
-            </IntlProvider>
+            </IntlProvider>,
         );
 
         // Assert
         expect(screen.queryByTestId('loadingSpinner')).not.toBeInTheDocument();
+
         // Verify the channelNamesMap was passed to PostText
         expect(window.PostUtils.formatText).toHaveBeenCalledWith(
             'Message with ~test-channel mention',
             expect.objectContaining({
                 channelNamesMap: channelMentions,
-            })
+            }),
         );
     });
 });

@@ -11,11 +11,11 @@ describe('LoadingSpinner', () => {
     test('renders correctly', () => {
         // Arrange & Act
         render(
-            <IntlProvider locale="en">
-                <LoadingSpinner />
-            </IntlProvider>
+            <IntlProvider locale='en'>
+                <LoadingSpinner/>
+            </IntlProvider>,
         );
-        
+
         // Assert
         expect(screen.getByTestId('loadingSpinner')).toBeInTheDocument();
     });
@@ -23,16 +23,16 @@ describe('LoadingSpinner', () => {
     test('has correct classes and attributes', () => {
         // Arrange & Act
         render(
-            <IntlProvider locale="en">
-                <LoadingSpinner />
-            </IntlProvider>
+            <IntlProvider locale='en'>
+                <LoadingSpinner/>
+            </IntlProvider>,
         );
-        
+
         // Assert
         const spinner = screen.getByTestId('loadingSpinner');
         expect(spinner).toHaveClass('LoadingSpinner');
         expect(spinner).toHaveAttribute('id', 'loadingSpinner');
-        
+
         // Check the inner span
         const innerSpan = spinner.querySelector('span');
         expect(innerSpan).toBeInTheDocument();
@@ -43,11 +43,11 @@ describe('LoadingSpinner', () => {
     test('is accessible', () => {
         // Arrange & Act
         render(
-            <IntlProvider locale="en">
-                <LoadingSpinner />
-            </IntlProvider>
+            <IntlProvider locale='en'>
+                <LoadingSpinner/>
+            </IntlProvider>,
         );
-        
+
         // Assert - Should have a title for screen readers
         const innerSpan = screen.getByTitle('Loading Icon');
         expect(innerSpan).toBeInTheDocument();

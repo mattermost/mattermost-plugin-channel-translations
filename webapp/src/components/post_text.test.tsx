@@ -45,11 +45,11 @@ describe('PostText', () => {
         render(
             <Provider store={store}>
                 <PostText
-                    message="Test message"
-                    channelID="channel1"
-                    postID="post1"
+                    message='Test message'
+                    channelID='channel1'
+                    postID='post1'
                 />
-            </Provider>
+            </Provider>,
         );
 
         // Assert
@@ -59,13 +59,13 @@ describe('PostText', () => {
                 singleline: false,
                 mentionHighlight: true,
                 atMentions: true,
-            })
+            }),
         );
         expect(window.PostUtils.messageHtmlToComponent).toHaveBeenCalledWith(
             'formatted text',
             expect.objectContaining({
                 postId: 'post1',
-            })
+            }),
         );
         expect(screen.getByTestId('posttext')).toBeInTheDocument();
     });
@@ -92,11 +92,11 @@ describe('PostText', () => {
         render(
             <Provider store={store}>
                 <PostText
-                    message="Test message"
-                    channelID="nonexistent"
-                    postID="post1"
+                    message='Test message'
+                    channelID='nonexistent'
+                    postID='post1'
                 />
-            </Provider>
+            </Provider>,
         );
 
         // Assert
@@ -135,12 +135,12 @@ describe('PostText', () => {
         render(
             <Provider store={store}>
                 <PostText
-                    message="Test message with ~channel-name"
-                    channelID="channel1"
-                    postID="post1"
+                    message='Test message with ~channel-name'
+                    channelID='channel1'
+                    postID='post1'
                     channelNamesMap={channelNamesMap}
                 />
-            </Provider>
+            </Provider>,
         );
 
         // Assert
@@ -148,7 +148,7 @@ describe('PostText', () => {
             'Test message with ~channel-name',
             expect.objectContaining({
                 channelNamesMap,
-            })
+            }),
         );
     });
 
@@ -173,11 +173,11 @@ describe('PostText', () => {
         render(
             <Provider store={store}>
                 <PostText
-                    message=""
-                    channelID="channel1"
-                    postID="post1"
+                    message=''
+                    channelID='channel1'
+                    postID='post1'
                 />
-            </Provider>
+            </Provider>,
         );
 
         // Assert

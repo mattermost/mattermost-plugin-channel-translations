@@ -2,11 +2,12 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
-import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
-import { Provider } from 'react-redux';
+import {render, screen, fireEvent, act, waitFor} from '@testing-library/react';
+import {Provider} from 'react-redux';
 import configureStore from 'redux-mock-store';
 
 import * as client from '../../client';
+
 import TranslationLanguageSetting from './translation_language';
 
 jest.mock('../../client', () => ({
@@ -38,15 +39,15 @@ describe('TranslationLanguageSetting', () => {
         // Act
         render(
             <Provider store={store}>
-                <TranslationLanguageSetting informChange={informChange} />
-            </Provider>
+                <TranslationLanguageSetting informChange={informChange}/>
+            </Provider>,
         );
 
         // Assert
         // Should have a select element
         expect(screen.getByRole('combobox')).toBeInTheDocument();
         expect(screen.getByText('Default (Auto)')).toBeInTheDocument();
-        
+
         // Wait for languages to load
         await waitFor(() => {
             expect(client.getTranslationLanguages).toHaveBeenCalled();
@@ -66,8 +67,8 @@ describe('TranslationLanguageSetting', () => {
         // Act
         render(
             <Provider store={store}>
-                <TranslationLanguageSetting informChange={informChange} />
-            </Provider>
+                <TranslationLanguageSetting informChange={informChange}/>
+            </Provider>,
         );
 
         // Assert - Wait for languages to load
@@ -94,8 +95,8 @@ describe('TranslationLanguageSetting', () => {
         // Act
         render(
             <Provider store={store}>
-                <TranslationLanguageSetting informChange={informChange} />
-            </Provider>
+                <TranslationLanguageSetting informChange={informChange}/>
+            </Provider>,
         );
 
         // Assert - Component doesn't crash
@@ -121,8 +122,8 @@ describe('TranslationLanguageSetting', () => {
         // Act
         render(
             <Provider store={store}>
-                <TranslationLanguageSetting informChange={informChange} />
-            </Provider>
+                <TranslationLanguageSetting informChange={informChange}/>
+            </Provider>,
         );
 
         // Assert - Selected value should be 'es'
@@ -145,8 +146,8 @@ describe('TranslationLanguageSetting', () => {
         // Act
         render(
             <Provider store={store}>
-                <TranslationLanguageSetting informChange={informChange} />
-            </Provider>
+                <TranslationLanguageSetting informChange={informChange}/>
+            </Provider>,
         );
 
         // Wait for options to be available
@@ -156,7 +157,7 @@ describe('TranslationLanguageSetting', () => {
 
         // Select a new language
         act(() => {
-            fireEvent.change(screen.getByRole('combobox'), { target: { value: 'fr' } });
+            fireEvent.change(screen.getByRole('combobox'), {target: {value: 'fr'}});
         });
 
         // Assert
