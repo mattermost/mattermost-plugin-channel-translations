@@ -6,7 +6,7 @@ toolchain go1.24.0
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/mattermost/mattermost-plugin-ai v1.1.1
+	github.com/mattermost/mattermost-plugin-ai v1.1.2-0.20250414141950-136a8685368f
 	github.com/mattermost/mattermost/server/public v0.1.11
 	github.com/pkg/errors v0.9.1
 )
@@ -78,5 +78,3 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/mattermost/mattermost-plugin-ai => ../mattermost-plugin-ai
