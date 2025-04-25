@@ -4,6 +4,8 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 
+/* global jest */
+
 // Mock PostUtils global
 window.PostUtils = {
     formatText: jest.fn().mockReturnValue('formatted text'),
