@@ -61,7 +61,7 @@ describe('Config', () => {
         expect(screen.getByText(/create a new issue in the plugin repository/)).toBeInTheDocument();
         const link = screen.getByRole('link');
         expect(link).toBeInTheDocument();
-        expect(link).toHaveAttribute('href', 'http://github.com/mattermost/mattermost-plugin-ai/issues');
+        expect(link).toHaveAttribute('href', 'http://github.com/mattermost/mattermost-plugin-channel-translations/issues');
         expect(link).toHaveAttribute('target', '_blank');
     });
 
