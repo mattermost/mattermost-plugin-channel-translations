@@ -41,7 +41,7 @@ describe('TranslationsModal', () => {
         expect(screen.getByText('Hello world')).toBeInTheDocument();
         expect(screen.getByText('Hola mundo')).toBeInTheDocument();
         expect(screen.getByText('Bonjour monde')).toBeInTheDocument();
-        expect(screen.getByText('Original')).toBeInTheDocument();
+        expect(screen.getByTestId('original-label')).toBeInTheDocument();
         expect(screen.getByText('es')).toBeInTheDocument();
         expect(screen.getByText('fr')).toBeInTheDocument();
     });
@@ -70,7 +70,8 @@ describe('TranslationsModal', () => {
             </IntlProvider>
         );
 
-        fireEvent.click(screen.getByLabelText('Close'));
+        const closeButton = screen.getByTestId('modal-header').querySelector('button.close');
+        fireEvent.click(closeButton);
 
         // Assert
         expect(onHide).toHaveBeenCalledTimes(1);
@@ -98,7 +99,7 @@ describe('TranslationsModal', () => {
 
         // Assert
         expect(screen.getByText('Hello world')).toBeInTheDocument();
-        expect(screen.getByText('Original')).toBeInTheDocument();
+        expect(screen.getByTestId('original-label')).toBeInTheDocument();
         expect(screen.queryByText('es')).not.toBeInTheDocument();
     });
 
@@ -123,7 +124,7 @@ describe('TranslationsModal', () => {
 
         // Assert
         expect(screen.getByText('Hello world')).toBeInTheDocument();
-        expect(screen.getByText('Original')).toBeInTheDocument();
+        expect(screen.getByTestId('original-label')).toBeInTheDocument();
     });
 
     test('is not rendered when show is false', () => {
