@@ -101,7 +101,7 @@ const Config = (props: Props) => {
                         label={intl.formatMessage({defaultMessage: 'Translation Languages'})}
                         value={value.translationLanguages}
                         onChange={(e) => props.onChange(props.id, {...value, translationLanguages: e.target.value})}
-                        helpText={intl.formatMessage({defaultMessage: 'Comma-separated list of language codes to translate messages to (e.g. "en,es,fr"). Default is "en".'})}
+                        helpText={intl.formatMessage({defaultMessage: 'Comma-separated list of language codes to translate messages to (e.g. "English,Spanish,French").'})}
                     />
                     <TextItem
                         label={intl.formatMessage({defaultMessage: 'Translation Bot'})}
