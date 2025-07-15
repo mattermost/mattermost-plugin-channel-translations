@@ -36,7 +36,7 @@ export const TranslatedPost = (props: Props) => {
     }
 
     const userPreferences = useSelector((state: GlobalState) => state.entities.preferences.myPreferences);
-    const currentUserTranslationPreference = (userPreferences['pp_mattermost-channel-translatio--translation_language'] || {}).value || 'en';
+    const currentUserTranslationPreference = (userPreferences['pp_mattermost-channel-translatio--translation_language'] || {}).value ?? '';
 
     const post = props.post;
     let message = post.message;

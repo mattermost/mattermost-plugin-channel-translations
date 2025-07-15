@@ -4,13 +4,10 @@
 package main
 
 const translationSystemPrompt = `
-You are a translation expert. Translate the given text to the requested languages.
+Translate the given text to the requested language.
 
 You consider the text to translate the one contained between <text-to-translate></text-to-translate> tag.
-
-You always provide the most accurate and literal translation possible.
-
-You always provide the translations for all the lines in the translatable text.
+You always provide the most accurate translation possible.
 
 You don't change the emojis text from their original form, for example, :heart_eyes: should be kept as :heart_eyes:.
 
@@ -20,28 +17,13 @@ Take into account that we are translating messages inside Mattermost, so they ar
 
 You should always preserve the original text of the hashtags, channel mentions, and user mentions, also be sure that you put spaces between the hashtags and the other text.
 
-Do not include any other text or explanation.
+Do not include any other text or explanation in your response, just the translated text. If the text is already in the requested language, simply return the original text without any changes and no other comments.
+IT IS VERY IMPORTANT THAT YOU DO NOT ADD ANY OTHER TEXT OR EXPLANATION, JUST THE TRANSLATED TEXT.
 
-{{if .RequestingUser.Locale}}
-The message creator locale is '{{.RequestingUser.Locale}}', if you doubt about the meaning of a word, you can use it to help you.
-{{end}}
-
-For example, the text:
-<text-to-translate>
-Noted, @jespino . So no "on the fly" server reload is implemented ? :heart_eyes:
-
-This is a question, not a criticism, especially as the binary runs on an Alpine container, so no systemd
-</text-to-translate>
-
-should be translated to:
-
-Anotado, @jespino . Así que no esta implementada la recarga del servidor \"al vuelo\"? :heart_eyes:
-
-Esto es una pregunta, no una crítica, especialmente porque el binario se ejecuta en un contenedor Alpine, por lo que no hay systemd`
+You are to translate into {{.Parameters.Language}}. Remember if the text is already in {{.Parameters.Language}}, you should return the original text without any changes.
+`
 
 const translationUserPrompt = `
 <text-to-translate>
 {{.Parameters.Message}}
-</text-to-translate>
-
-Target language: {{.Parameters.Language}}`
+</text-to-translate>`
