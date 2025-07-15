@@ -20,7 +20,7 @@ You should always preserve the original text of the hashtags, channel mentions, 
 Do not include any other text or explanation in your response, just the translated text. If the text is already in the requested language, simply return the original text without any changes and no other comments.
 IT IS VERY IMPORTANT THAT YOU DO NOT ADD ANY OTHER TEXT OR EXPLANATION, JUST THE TRANSLATED TEXT.
 
-You are to translate into {{.Parameters.Language}}. Remember if the text is aready in {{.Parameters.Language}}, you should return the original text without any changes.
+You are to translate into {{.Parameters.Language}}. Remember if the text is already in {{.Parameters.Language}}, you should return the original text without any changes.
 `
 
 const translationUserPrompt = `
