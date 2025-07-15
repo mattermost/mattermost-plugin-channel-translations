@@ -53,6 +53,38 @@ func (p *Plugin) isChannelTranslationEnabled(channelID string) (bool, error) {
 	return enabled, nil
 }
 
+func (p *Plugin) getLanguageName(langCode string) string {
+	languageMap := map[string]string{
+		"bg":    "Bulgarian",
+		"de":    "German",
+		"en":    "English",
+		"en-AU": "English (Australia)",
+		"es":    "Spanish",
+		"fa":    "Persian",
+		"fr":    "French",
+		"hu":    "Hungarian",
+		"it":    "Italian",
+		"ja":    "Japanese",
+		"ko":    "Korean",
+		"nl":    "Dutch",
+		"pl":    "Polish",
+		"pt-BR": "Portuguese (Brazil)",
+		"ro":    "Romanian",
+		"ru":    "Russian",
+		"sv":    "Swedish",
+		"tr":    "Turkish",
+		"uk":    "Ukrainian",
+		"vi":    "Vietnamese",
+		"zh-CN": "Chinese (Simplified)",
+		"zh-TW": "Chinese (Traditional)",
+	}
+
+	if name, exists := languageMap[langCode]; exists {
+		return name
+	}
+	return langCode
+}
+
 func (p *Plugin) OnActivate() error {
 	p.pluginAPI = pluginapi.NewClient(p.API, p.Driver)
 	p.licenseChecker = enterprise.NewLicenseChecker(p.pluginAPI)
@@ -62,12 +94,12 @@ func (p *Plugin) OnActivate() error {
 	return nil
 }
 
-func (p *Plugin) translateText(message, requestorID, lang string) (string, error) {
+func (p *Plugin) translateText(message, requestorID, langCode string) (string, error) {
 	client := interpluginclient.NewClient(&p.MattermostPlugin)
 
 	promptParameters := map[string]any{
 		"Message":  message,
-		"Language": lang,
+		"Language": p.getLanguageName(langCode),
 	}
 	request := interpluginclient.SimpleCompletionRequest{
 		SystemPrompt:    translationSystemPrompt,

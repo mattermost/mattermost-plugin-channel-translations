@@ -90,12 +90,12 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	for _, language := range strings.Split(languages, ",") {
 		waitlist <- struct{}{}
 		waitGroup.Add(1)
-		go func(lang string) {
+		go func(langCode string) {
 			defer waitGroup.Done()
 			maxRetry := 10
 
 			for {
-				result, err := p.translateText(post.Message, post.UserId, lang)
+				result, err := p.translateText(post.Message, post.UserId, langCode)
 				if err != nil {
 					maxRetry--
 					if maxRetry == 0 {
@@ -105,7 +105,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 				}
 
 				mutex.Lock()
-				translations[lang] = result
+				translations[langCode] = result
 				// Store translations in post props
 				if post.Props == nil {
 					post.Props = make(model.StringInterface)

@@ -16,7 +16,7 @@ const TranslationLanguageSetting = ({informChange}: Props) => {
     const [languages, setLanguages] = useState<string[]>([]);
     const [selectedLanguage, setSelectedLanguage] = useState<string>('');
     const userPreferences = useSelector((state: any) => state.entities.preferences.myPreferences);
-    const currentUserTranslationPreference = (userPreferences['pp_mattermost-channel-translatio--translation_language'] || {}).value || 'en';
+    const currentUserTranslationPreference = (userPreferences['pp_mattermost-channel-translatio--translation_language'] || {}).value ?? '';
 
     useEffect(() => {
         setSelectedLanguage(currentUserTranslationPreference);
