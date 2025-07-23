@@ -8,6 +8,9 @@ import configureStore from 'redux-mock-store';
 
 import PostText from './post_text';
 
+// Get test site URL - use default for testing
+const TEST_SITE_URL = 'http://localhost:8065';
+
 describe('PostText', () => {
     const mockStore = configureStore();
     const channel = {id: 'channel1', team_id: 'team1'};
@@ -35,7 +38,7 @@ describe('PostText', () => {
                 },
                 general: {
                     config: {
-                        SiteURL: 'http://localhost:8065',
+                        SiteURL: TEST_SITE_URL,
                     },
                 },
             },
@@ -82,7 +85,7 @@ describe('PostText', () => {
                 },
                 general: {
                     config: {
-                        SiteURL: 'http://localhost:8065',
+                        SiteURL: TEST_SITE_URL,
                     },
                 },
             },

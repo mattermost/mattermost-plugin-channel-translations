@@ -4,11 +4,18 @@
 import {Client4 as Client4Class, ClientError} from '@mattermost/client';
 
 import manifest from './manifest';
+import {getSiteURLFromWindowObject} from './utils';
 
 const Client4 = new Client4Class();
 
+let siteURL = getSiteURLFromWindowObject();
+
 function baseRoute(): string {
     return `/plugins/${manifest.id}`;
+}
+
+export function setSiteUrl(url: string) {
+    siteURL = url;
 }
 
 function channelRoute(channelid: string): string {
@@ -20,7 +27,7 @@ function postRoute(postId: string): string {
 }
 
 async function doGet(url: string): Promise<any> {
-    const response = await fetch(url, Client4.getOptions({
+    const response = await fetch(`${siteURL}${url}`, Client4.getOptions({
         method: 'GET',
     }));
 
@@ -36,7 +43,7 @@ async function doGet(url: string): Promise<any> {
 }
 
 async function doPost(url: string, data: any): Promise<any> {
-    const response = await fetch(url, Client4.getOptions({
+    const response = await fetch(`${siteURL}${url}`, Client4.getOptions({
         method: 'POST',
         body: JSON.stringify(data),
     }));
