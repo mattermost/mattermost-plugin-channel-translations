@@ -1,3 +1,6 @@
+// Copyright (c) 2023-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 export function getSiteURLFromWindowObject(): string {
     let siteURL = '';
     if (window.location.origin) {

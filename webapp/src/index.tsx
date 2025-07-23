@@ -28,7 +28,6 @@ export default class Plugin {
         // Initialize siteURL handling for proper path resolution
         const siteURL = getSiteURLFromWindowObject();
         setSiteUrl(siteURL);
-        
         setupRedux(registry);
         const TranslationsModalContext = React.createContext({post: null, show: false});
 
