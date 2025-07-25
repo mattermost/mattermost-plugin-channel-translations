@@ -6,13 +6,17 @@ import styled from 'styled-components';
 import {FormattedMessage, useIntl} from 'react-intl';
 
 import Panel from './panel';
-import {BooleanItem, ItemList, TextItem} from './item';
+import {BooleanItem, ItemList, TextItem, SelectionItem, SelectionItemOption} from './item';
 
 type Config = {
     enableTranslations: boolean
     translationLanguages: string
     translationBotName: string
     translateSystemMessages: boolean
+    translationService: string
+    libreTranslateURL: string
+    libreTranslateAPIKey: string
+    libreTranslateFormat: string
 }
 
 type Props = {
@@ -46,6 +50,10 @@ const defaultConfig = {
     translationLanguages: '',
     translationBotName: '',
     translateSystemMessages: false,
+    translationService: 'ai',
+    libreTranslateURL: 'https://libretranslate.com',
+    libreTranslateAPIKey: '',
+    libreTranslateFormat: 'text',
 };
 
 const BetaMessage = () => (
@@ -115,6 +123,49 @@ const Config = (props: Props) => {
                         onChange={(to) => props.onChange(props.id, {...value, translateSystemMessages: to})}
                         helpText={intl.formatMessage({defaultMessage: 'Enable translation of system messages. When disabled, only user messages will be translated.'})}
                     />
+                    <SelectionItem
+                        label={intl.formatMessage({defaultMessage: 'Translation Service'})}
+                        value={value.translationService}
+                        onChange={(e) => props.onChange(props.id, {...value, translationService: e.target.value})}
+                        helpText={intl.formatMessage({defaultMessage: 'Choose the translation service to use. AI Translation uses the Mattermost AI plugin, while LibreTranslate uses a self-hosted or public LibreTranslate instance.'})}
+                    >
+                        <SelectionItemOption value='ai'>
+                            {intl.formatMessage({defaultMessage: 'AI Translation'})}
+                        </SelectionItemOption>
+                        <SelectionItemOption value='libretranslate'>
+                            {intl.formatMessage({defaultMessage: 'LibreTranslate'})}
+                        </SelectionItemOption>
+                    </SelectionItem>
+                    {value.translationService === 'libretranslate' && (
+                        <>
+                            <TextItem
+                                label={intl.formatMessage({defaultMessage: 'LibreTranslate URL'})}
+                                value={value.libreTranslateURL}
+                                onChange={(e) => props.onChange(props.id, {...value, libreTranslateURL: e.target.value})}
+                                helpText={intl.formatMessage({defaultMessage: 'Base URL of the LibreTranslate instance (e.g., https://libretranslate.com or http://libretranslate:5000). Endpoints like /translate will be appended automatically.'})}
+                            />
+                            <TextItem
+                                label={intl.formatMessage({defaultMessage: 'LibreTranslate API Key'})}
+                                value={value.libreTranslateAPIKey}
+                                type='password'
+                                onChange={(e) => props.onChange(props.id, {...value, libreTranslateAPIKey: e.target.value})}
+                                helpText={intl.formatMessage({defaultMessage: 'Optional API key for LibreTranslate authentication. Leave empty for public instances.'})}
+                            />
+                            <SelectionItem
+                                label={intl.formatMessage({defaultMessage: 'LibreTranslate Format'})}
+                                value={value.libreTranslateFormat}
+                                onChange={(e) => props.onChange(props.id, {...value, libreTranslateFormat: e.target.value})}
+                                helpText={intl.formatMessage({defaultMessage: 'Format for LibreTranslate requests. Use "text" for plain text or "html" for HTML content.'})}
+                            >
+                                <SelectionItemOption value='text'>
+                                    {intl.formatMessage({defaultMessage: 'Text'})}
+                                </SelectionItemOption>
+                                <SelectionItemOption value='html'>
+                                    {intl.formatMessage({defaultMessage: 'HTML'})}
+                                </SelectionItemOption>
+                            </SelectionItem>
+                        </>
+                    )}
                 </ItemList>
             </Panel>
         </ConfigContainer>

@@ -16,6 +16,10 @@ describe('Config', () => {
             translationLanguages: 'en,es,fr',
             translationBotName: 'TranslateBot',
             translateSystemMessages: false,
+            translationService: 'ai',
+            libreTranslateURL: 'https://libretranslate.com',
+            libreTranslateAPIKey: '',
+            libreTranslateFormat: 'text',
         },
         disabled: false,
         onChange: jest.fn(),
@@ -47,6 +51,7 @@ describe('Config', () => {
         expect(screen.getByText('Translation Languages')).toBeInTheDocument();
         expect(screen.getByText('Translation Bot')).toBeInTheDocument();
         expect(screen.getByText('Translate System Messages')).toBeInTheDocument();
+        expect(screen.getByText('Translation Service')).toBeInTheDocument();
 
         // Check input values are set correctly
         expect(screen.getByDisplayValue('en,es,fr')).toBeInTheDocument();
@@ -135,6 +140,36 @@ describe('Config', () => {
                 translateSystemMessages: true,
             },
         );
+    });
+
+    test('shows LibreTranslate fields when LibreTranslate service is selected', () => {
+        // Arrange
+        const propsWithLibreTranslate = {
+            ...defaultProps,
+            value: {
+                ...defaultProps.value,
+                translationService: 'libretranslate',
+            },
+        };
+
+        // Act
+        renderWithIntl(<Config {...propsWithLibreTranslate}/>);
+
+        // Assert - LibreTranslate specific fields should be visible
+        expect(screen.getByText('LibreTranslate URL')).toBeInTheDocument();
+        expect(screen.getByText('LibreTranslate API Key')).toBeInTheDocument();
+        expect(screen.getByText('LibreTranslate Format')).toBeInTheDocument();
+        expect(screen.getByDisplayValue('https://libretranslate.com')).toBeInTheDocument();
+    });
+
+    test('hides LibreTranslate fields when AI service is selected', () => {
+        // Act
+        renderWithIntl(<Config {...defaultProps}/>);
+
+        // Assert - LibreTranslate specific fields should not be visible
+        expect(screen.queryByText('LibreTranslate URL')).not.toBeInTheDocument();
+        expect(screen.queryByText('LibreTranslate API Key')).not.toBeInTheDocument();
+        expect(screen.queryByText('LibreTranslate Format')).not.toBeInTheDocument();
     });
 
     test('registers save action on mount and unregisters on unmount', () => {

@@ -86,7 +86,7 @@ func (p *Plugin) getLanguageName(langCode string) string {
 }
 
 func (p *Plugin) OnActivate() error {
-	p.pluginAPI = pluginapi.NewClient(p.API, p.Driver)
+	p.pluginAPI = pluginapi.NewClient(p.MattermostPlugin.API, p.MattermostPlugin.Driver)
 	p.licenseChecker = enterprise.NewLicenseChecker(p.pluginAPI)
 	if !p.licenseChecker.IsLicensed() {
 		return fmt.Errorf("invalid license, this software requires Mattermost Enterprise")
@@ -95,6 +95,25 @@ func (p *Plugin) OnActivate() error {
 }
 
 func (p *Plugin) translateText(message, requestorID, langCode string) (string, error) {
+	config := p.getConfiguration()
+
+	// Route to appropriate translation service
+	switch config.TranslationService {
+	case "libretranslate":
+		result, err := p.translateWithLibreTranslate(message, langCode)
+		if err != nil {
+			return "", err
+		}
+		return result, nil
+	case "ai", "":
+		// Default to AI translation for backward compatibility
+		return p.translateWithAI(message, requestorID, langCode)
+	default:
+		return "", fmt.Errorf("unknown translation service: %s", config.TranslationService)
+	}
+}
+
+func (p *Plugin) translateWithAI(message, requestorID, langCode string) (string, error) {
 	client := interpluginclient.NewClient(&p.MattermostPlugin)
 
 	promptParameters := map[string]any{
