@@ -11,7 +11,8 @@ import {GlobalState} from '@mattermost/types/store';
 import manifest from '@/manifest';
 
 import Config from './components/system_console/config';
-import {getChannelTranslationStatus, toggleChannelTranslations, translatePost} from './client';
+import {getChannelTranslationStatus, toggleChannelTranslations, translatePost, setSiteUrl} from './client';
+import {getSiteURLFromWindowObject} from './utils';
 import TranslationLanguageSetting from './components/user_settings/translation_language';
 import {setupRedux} from './redux';
 import {doOpenTranslationsModal, useOpenTranslationsModal} from './hooks';
@@ -24,6 +25,9 @@ type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>
 export default class Plugin {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
     public async initialize(registry: any, store: WebappStore) {
+        // Initialize siteURL handling for proper path resolution
+        const siteURL = getSiteURLFromWindowObject();
+        setSiteUrl(siteURL);
         setupRedux(registry);
         const TranslationsModalContext = React.createContext({post: null, show: false});
 

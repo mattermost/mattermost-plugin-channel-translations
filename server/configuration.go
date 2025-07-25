@@ -13,6 +13,10 @@ type Config struct {
 	EnableTranslations      bool   `json:"enableTranslations"`
 	TranslationLanguages    string `json:"translationLanguages"`
 	TranslateSystemMessages bool   `json:"translateSystemMessages"`
+	TranslationService      string `json:"translationService"`
+	LibreTranslateURL       string `json:"libreTranslateURL"`
+	LibreTranslateAPIKey    string `json:"libreTranslateAPIKey"`
+	LibreTranslateFormat    string `json:"libreTranslateFormat"`
 }
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server

@@ -49,19 +49,25 @@ type SelectionItemProps = {
     value: string
     onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
     children: React.ReactNode
+    helpText?: string
 };
 
 export const SelectionItem = (props: SelectionItemProps) => {
     return (
         <>
             <ItemLabel>{props.label}</ItemLabel>
-            <StyledInput
-                as='select'
-                value={props.value}
-                onChange={props.onChange}
-            >
-                {props.children}
-            </StyledInput>
+            <TextFieldContainer>
+                <StyledInput
+                    as='select'
+                    value={props.value}
+                    onChange={props.onChange}
+                >
+                    {props.children}
+                </StyledInput>
+                {props.helpText &&
+                <HelpText>{props.helpText}</HelpText>
+                }
+            </TextFieldContainer>
         </>
     );
 };
