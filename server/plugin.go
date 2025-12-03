@@ -4,13 +4,11 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"time"
-
+	"strings"
 	"sync"
 
-	"github.com/mattermost/mattermost-plugin-ai/interpluginclient"
+	"github.com/mattermost/mattermost-plugin-ai/public/bridgeclient"
 	"github.com/mattermost/mattermost-plugin-channel-translations/server/enterprise"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
@@ -95,30 +93,36 @@ func (p *Plugin) OnActivate() error {
 }
 
 func (p *Plugin) translateText(message, requestorID, langCode string) (string, error) {
-	client := interpluginclient.NewClient(&p.MattermostPlugin)
+	client := bridgeclient.NewClient(p.API)
 
-	promptParameters := map[string]any{
-		"Message":  message,
-		"Language": p.getLanguageName(langCode),
-	}
-	request := interpluginclient.SimpleCompletionRequest{
-		SystemPrompt:    translationSystemPrompt,
-		UserPrompt:      translationUserPrompt,
-		BotUsername:     p.getConfiguration().TranslationBotName,
-		RequesterUserID: requestorID,
-		Parameters:      promptParameters,
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-
-	result, err := client.SimpleCompletionWithContext(ctx, request)
+	// Get the bot user by username to obtain the bot ID
+	botUsername := p.getConfiguration().TranslationBotName
+	botUser, err := p.API.GetUserByUsername(botUsername)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get bot user: %w", err)
 	}
 
-	if result == "" {
-		result = " "
+	// Format the prompts with the parameters
+	languageName := p.getLanguageName(langCode)
+	systemPrompt := strings.ReplaceAll(translationSystemPrompt, "{{.Parameters.Language}}", languageName)
+	userPrompt := strings.ReplaceAll(translationUserPrompt, "{{.Parameters.Message}}", message)
+
+	// Build the completion request with posts
+	request := bridgeclient.CompletionRequest{
+		Posts: []bridgeclient.Post{
+			{Role: "system", Message: systemPrompt},
+			{Role: "user", Message: userPrompt},
+		},
+		UserID: requestorID,
 	}
-	return result, nil
+
+	translation, completionErr := client.AgentCompletion(botUser.Id, request)
+	if completionErr != nil {
+		return "", completionErr
+	}
+
+	if translation == "" {
+		translation = " "
+	}
+	return translation, nil
 }
