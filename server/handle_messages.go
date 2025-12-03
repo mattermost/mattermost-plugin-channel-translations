@@ -111,6 +111,8 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 					post.Props = make(model.StringInterface)
 				}
 				post.Props["translations"] = translations
+				// Ensure the post type remains as custom_translation
+				post.Type = "custom_translation"
 				_ = p.pluginAPI.Post.UpdatePost(post)
 				mutex.Unlock()
 				<-waitlist
